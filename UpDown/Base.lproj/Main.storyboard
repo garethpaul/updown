@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6221" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="q3i-IE-EUy">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6213"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="lRG-Yj-asb">
+            <objects>
+                <viewController id="q3i-IE-EUy" customClass="ViewController" customModule="UpDown" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="oIf-6v-ZG3"/>
+                        <viewControllerLayoutGuide type="bottom" id="Syf-Xw-onX"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="4v8-qB-tjx">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UpDown" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4Qq-Qa-0k8">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="72"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" placeholderIntrinsicWidth="400" placeholderIntrinsicHeight="400" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="7fb-YW-rUy">
+                                <rect key="frame" x="290" y="290" width="20" height="20"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="20" id="Fk3-oO-TZc"/>
+                                </constraints>
+                            </activityIndicatorView>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="7fb-YW-rUy" firstAttribute="top" secondItem="oIf-6v-ZG3" secondAttribute="bottom" constant="270" id="9El-L5-rWN"/>
+                            <constraint firstItem="4Qq-Qa-0k8" firstAttribute="bottom" secondItem="Syf-Xw-onX" secondAttribute="top" id="Mf2-dx-YgV"/>
+                            <constraint firstItem="4Qq-Qa-0k8" firstAttribute="top" secondItem="4v8-qB-tjx" secondAttribute="top" id="QR3-Th-rFy"/>
+                            <constraint firstItem="7fb-YW-rUy" firstAttribute="centerY" secondItem="4Qq-Qa-0k8" secondAttribute="centerY" id="RnW-Ei-L9o"/>
+                            <constraint firstAttribute="trailing" secondItem="4Qq-Qa-0k8" secondAttribute="trailing" id="rpU-Pm-mnM"/>
+                            <constraint firstItem="7fb-YW-rUy" firstAttribute="centerX" secondItem="4Qq-Qa-0k8" secondAttribute="centerX" id="voO-Wj-LDd"/>
+                            <constraint firstItem="4Qq-Qa-0k8" firstAttribute="leading" secondItem="4v8-qB-tjx" secondAttribute="leading" id="xQh-Po-XyJ"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="gameText" destination="4Qq-Qa-0k8" id="e1h-bE-bT7"/>
+                        <outlet property="spinner" destination="7fb-YW-rUy" id="LD2-va-xdV"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="t1d-jf-m67" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1108" y="528"/>
+        </scene>
+    </scenes>
+</document>
