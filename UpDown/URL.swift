@@ -11,10 +11,14 @@ class URL{
         request.HTTPMethod = "GET"
         var err: NSError?
         var task = session.dataTaskWithRequest(request, completionHandler: {data, response, error -> Void in
-            var strData = NSString(data: data, encoding: NSUTF8StringEncoding)
+            var strData = NSString(data: data!, encoding: NSUTF8StringEncoding)
             completed(succeeded: true, data: strData!)
             var err: NSError?
-            var json = NSJSONSerialization.JSONObjectWithData(data, options: .MutableLeaves, error: &err) as? NSDictionary
+            do {
+                try json = NSJSONSerialization.JSONObjectWithData(data!, options: .MutableLeaves) as? NSDictionary
+            } catch let e: NSError {
+                print error
+            }
         })
         task.resume()
     }

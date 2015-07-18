@@ -39,28 +39,29 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
         if manager.deviceMotionAvailable {
 
             // Start the device motion updates
+
             manager.startDeviceMotionUpdatesToQueue(NSOperationQueue.mainQueue()) {
-                [weak self] (data: CMDeviceMotion!, error: NSError!) in
+                (motion, error) in
 
                 // Calculate the magnitude of th\e change
-                let magnitude = sqrt(pow(data.attitude.roll, 2) + pow(data.attitude.yaw, 2) + pow(data.attitude.pitch, 2))
+                let magnitude = sqrt(pow(motion!.attitude.roll, 2) + pow(motion!.attitude.yaw, 2) + pow(motion!.attitude.pitch, 2))
 
                 // Determine whether the player is playing via boolean
-                let playing = self?.playing as Bool!
+                let playing = self.playing as Bool!
 
                 // If the magnitude of change is above 1 or 2.6 (tried via testing changes)
                 if magnitude >= 1 && magnitude <= 2.6 {
 
                     // If not playing (begin playing)
                     if (playing == false) {
-                        self?.play()
+                        self.play()
                     }
                     
                 } else {
 
                     // If the "magnitude" - shows that the phone is down and user is playing stop playing
                     if playing == true {
-                        self?.stop()
+                        self.stop()
                     }
                 }
             }
@@ -75,11 +76,10 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
 
         // Put a random string into the game
         let url = URL()
-        let gameT = self.gameText
-        url.get("https://garethpaul-app.appspot.com/api/updown", { (succeeded: Bool, data: NSString) -> () in
+        url.get("https://garethpaul-app.appspot.com/api/updown", completed: { (succeeded: Bool, data: NSString) -> () in
             // success
             dispatch_async(dispatch_get_main_queue()) {
-                self.gameText.text = data
+                self.gameText.text = data as String
                 self.gameText.hidden = false;
             }
             // start playing
