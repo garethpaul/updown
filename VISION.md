@@ -39,7 +39,7 @@ The app can use motion data, ads, and remote content. It should not collect
 motion or usage data silently, and remote responses should not be trusted as
 safe UI content without validation.
 
-## What We Will Not Merge For Now
+## What We Will Not Merge (For Now)
 
 - Checked-in ad credentials
 - Hidden analytics
