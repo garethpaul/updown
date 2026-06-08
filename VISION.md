@@ -18,6 +18,7 @@ Priority:
 - Keep ad-unit IDs as developer-provided configuration
 - Make remote prompt fetching visible
 - Treat Fabric/Crashlytics, MoPub, and Swift versions as legacy
+- Keep remote prompt fetch failures non-crashing and visible
 
 Next priorities:
 

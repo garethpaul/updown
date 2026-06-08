@@ -18,3 +18,5 @@ DerivedData
 *.ipa
 *.xcuserstates
 Info.plist
+!UpDown/Info.plist
+!UpDownTests/Info.plist
