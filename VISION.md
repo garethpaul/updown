@@ -19,6 +19,7 @@ Priority:
 - Make remote prompt fetching visible
 - Treat Fabric/Crashlytics, MoPub, and Swift versions as legacy
 - Keep remote prompt fetch failures non-crashing and visible
+- Treat missing CoreMotion samples as non-crashing no-ops
 
 Next priorities:
 

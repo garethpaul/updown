@@ -73,12 +73,19 @@ def check_remote_endpoint_is_https():
     require("https://garethpaul-app.appspot.com/api/updown" in view_controller, "remote prompt endpoint must stay HTTPS")
 
 
+def check_motion_callback_guard():
+    view_controller = read_text("UpDown/ViewController.swift")
+    require("motion!" not in view_controller, "motion callback must not force-unwrap motion data")
+    require("if let currentMotion = motion" in view_controller, "motion callback must guard optional motion data")
+
+
 def main():
     checks = [
         check_project_manifest_references,
         check_project_files_parse,
         check_url_client_guard,
         check_remote_endpoint_is_https,
+        check_motion_callback_guard,
     ]
     try:
         for check in checks:

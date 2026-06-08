@@ -43,25 +43,28 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
             manager.startDeviceMotionUpdatesToQueue(NSOperationQueue.mainQueue()) {
                 (motion, error) in
 
-                // Calculate the magnitude of th\e change
-                let magnitude = sqrt(pow(motion!.attitude.roll, 2) + pow(motion!.attitude.yaw, 2) + pow(motion!.attitude.pitch, 2))
+                if let currentMotion = motion {
 
-                // Determine whether the player is playing via boolean
-                let playing = self.playing as Bool!
+                    // Calculate the magnitude of the change
+                    let magnitude = sqrt(pow(currentMotion.attitude.roll, 2) + pow(currentMotion.attitude.yaw, 2) + pow(currentMotion.attitude.pitch, 2))
 
-                // If the magnitude of change is above 1 or 2.6 (tried via testing changes)
-                if magnitude >= 1 && magnitude <= 2.6 {
+                    // Determine whether the player is playing via boolean
+                    let playing = self.playing as Bool!
 
-                    // If not playing (begin playing)
-                    if (playing == false) {
-                        self.play()
-                    }
-                    
-                } else {
+                    // If the magnitude of change is above 1 or 2.6 (tried via testing changes)
+                    if magnitude >= 1 && magnitude <= 2.6 {
 
-                    // If the "magnitude" - shows that the phone is down and user is playing stop playing
-                    if playing == true {
-                        self.stop()
+                        // If not playing (begin playing)
+                        if (playing == false) {
+                            self.play()
+                        }
+
+                    } else {
+
+                        // If the "magnitude" - shows that the phone is down and user is playing stop playing
+                        if playing == true {
+                            self.stop()
+                        }
                     }
                 }
             }
@@ -105,4 +108,3 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
 
 
 }
-
