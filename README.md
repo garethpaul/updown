@@ -52,9 +52,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 ## Testing and Verification
 
-- `make check` runs plist, storyboard, asset, project, URL-client, prompt
-  failure, prompt in-flight, motion callback, motion lifecycle, and play-state
-  contract checks.
+- `make check` runs plist, storyboard, asset, project, Fabric build-secret,
+  URL-client, prompt failure, prompt in-flight, motion callback, motion
+  lifecycle, and play-state contract checks.
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
@@ -63,7 +63,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 ## Configuration and Secrets
 
-- Detected references to Twitter. Keep API keys, OAuth credentials, tokens, and account-specific values in local configuration only.
+- Set `FABRIC_API_KEY` and `FABRIC_BUILD_SECRET` locally when Fabric dSYM
+  upload is needed during Xcode builds. The build phase skips that upload when
+  the variables are absent.
 
 ## Security and Privacy Notes
 
@@ -89,6 +91,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   remote prompt fetch prevention.
 - See `docs/plans/2026-06-09-motion-lifecycle-guard.md` for stopping and
   idempotently restarting CoreMotion updates with the view lifecycle.
+- See `docs/plans/2026-06-09-fabric-build-secret-env.md` for keeping Fabric
+  build upload credentials out of the Xcode project.
 
 ## Contributing
 

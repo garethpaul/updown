@@ -75,6 +75,20 @@ def check_remote_endpoint_is_https():
     require("https://garethpaul-app.appspot.com/api/updown" in view_controller, "remote prompt endpoint must stay HTTPS")
 
 
+def check_fabric_build_phase_secrets_are_env_only():
+    project = read_text("UpDown.xcodeproj/project.pbxproj")
+    require(
+        not re.search(r"Fabric\.framework/run [A-Fa-f0-9]{32,} [A-Fa-f0-9]{32,}", project),
+        "Fabric build phase must not contain checked-in API keys or build secrets",
+    )
+    require("FABRIC_API_KEY" in project, "Fabric build phase must read the API key from the environment")
+    require("FABRIC_BUILD_SECRET" in project, "Fabric build phase must read the build secret from the environment")
+    require(
+        "Fabric upload skipped: FABRIC_API_KEY and FABRIC_BUILD_SECRET are not set." in project,
+        "Fabric build phase must skip uploads when local credentials are absent",
+    )
+
+
 def check_prompt_fetch_failure_handling():
     view_controller = read_text("UpDown/ViewController.swift")
     require("if succeeded && data.length > 0" in view_controller, "prompt fetch must check success and non-empty data")
@@ -166,6 +180,7 @@ def main():
         check_project_files_parse,
         check_url_client_guard,
         check_remote_endpoint_is_https,
+        check_fabric_build_phase_secrets_are_env_only,
         check_prompt_fetch_failure_handling,
         check_motion_callback_guard,
         check_play_state_is_not_implicitly_unwrapped,

@@ -16,6 +16,7 @@ Priority:
 
 - Preserve the motion-triggered play/stop flow
 - Keep ad-unit IDs as developer-provided configuration
+- Keep Fabric build upload credentials in local environment variables
 - Make remote prompt fetching visible
 - Treat Fabric/Crashlytics, MoPub, and Swift versions as legacy
 - Keep remote prompt fetch failures non-crashing and visible
