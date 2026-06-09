@@ -12,6 +12,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 DOCS_PLANS = ROOT / "docs/plans"
 CANONICAL_PLAN = DOCS_PLANS / "2026-06-08-updown-baseline.md"
+STALE_PROMPT_PLAN = DOCS_PLANS / "2026-06-09-stale-prompt-completion-guard.md"
 
 
 def fail(message):
@@ -170,11 +171,38 @@ def check_motion_lifecycle_guard():
     )
 
 
+def check_stale_prompt_completion_guard():
+    view_controller = read_text("UpDown/ViewController.swift")
+    require(
+        "var promptRequestID = 0" in view_controller,
+        "prompt fetches must track request generations",
+    )
+    require(
+        "let requestID = self.promptRequestID" in view_controller,
+        "prompt fetch completions must capture the active request generation",
+    )
+    require(
+        "if requestID != self.promptRequestID" in view_controller,
+        "prompt fetch completions must ignore stale request generations",
+    )
+    require(
+        view_controller.index("if requestID != self.promptRequestID")
+        < view_controller.index("self.fetchingPrompt = false"),
+        "stale prompt completion guard must run before clearing active fetch state",
+    )
+    require(
+        "override func viewWillDisappear(animated: Bool)" in view_controller
+        and "self.promptRequestID += 1" in view_controller,
+        "view disappearance must invalidate pending prompt completions",
+    )
+
+
 def check_docs_plans():
     require(DOCS_PLANS.is_dir(), "docs/plans must exist")
     plans = sorted(DOCS_PLANS.glob("*.md"))
     require(plans, "docs/plans must contain completed maintenance plans")
     require(CANONICAL_PLAN in plans, f"{CANONICAL_PLAN.relative_to(ROOT)} must be present")
+    require(STALE_PROMPT_PLAN in plans, f"{STALE_PROMPT_PLAN.relative_to(ROOT)} must be present")
 
     for plan in plans:
         text = plan.read_text(encoding="utf-8")
@@ -194,6 +222,7 @@ def main():
         check_play_state_is_not_implicitly_unwrapped,
         check_prompt_fetch_inflight_guard,
         check_motion_lifecycle_guard,
+        check_stale_prompt_completion_guard,
         check_docs_plans,
     ]
     try:

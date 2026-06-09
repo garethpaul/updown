@@ -23,6 +23,7 @@ Priority:
 - Keep play state false when remote prompts fail to load
 - Reject non-2xx remote prompt responses before treating body text as content
 - Avoid duplicate remote prompt fetches while a fetch is already in flight
+- Ignore stale remote prompt completions after the game view disappears
 - Treat missing CoreMotion samples as non-crashing no-ops
 - Stop CoreMotion updates when the game view is off screen
 - Keep motion play state as concrete local state, not an implicitly unwrapped

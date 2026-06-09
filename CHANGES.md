@@ -2,6 +2,9 @@
 
 ## 2026-06-09
 
+- Added a prompt request-generation guard so stale remote prompt completions do
+  not update game UI or play state after the view disappears.
+- Added static checker coverage for stale prompt completion invalidation.
 - Moved Fabric dSYM upload credentials out of the Xcode project build phase and
   into local environment variables.
 - Added static checker coverage that rejects checked-in Fabric build secrets.

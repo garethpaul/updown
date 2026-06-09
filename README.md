@@ -54,7 +54,7 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 - `make check` runs plist, storyboard, asset, project, Fabric build-secret,
   URL-client, HTTP status, prompt failure, prompt in-flight, motion callback,
-  motion lifecycle, and play-state contract checks.
+  motion lifecycle, stale prompt completion, and play-state contract checks.
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
@@ -95,6 +95,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   build upload credentials out of the Xcode project.
 - See `docs/plans/2026-06-09-url-client-status-guard.md` for rejecting
   non-2xx remote prompt responses before decoding body text.
+- See `docs/plans/2026-06-09-stale-prompt-completion-guard.md` for ignoring
+  stale remote prompt completions after the game view disappears.
 
 ## Contributing
 

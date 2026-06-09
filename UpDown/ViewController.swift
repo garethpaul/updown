@@ -14,6 +14,7 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
     // Playing bool to be set when someone is playing the game
     var playing = false
     var fetchingPrompt = false
+    var promptRequestID = 0
 
     // TODO: Replace this test id with your personal ad unit id
     var interstitial: MPInterstitialAdController = MPInterstitialAdController(forAdUnitId: "YOUR_AD_UNIT_ID")
@@ -41,6 +42,7 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         manager.stopDeviceMotionUpdates()
+        self.promptRequestID += 1
         fetchingPrompt = false
         playing = false
     }
@@ -91,6 +93,8 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
             return
         }
         self.fetchingPrompt = true
+        self.promptRequestID += 1
+        let requestID = self.promptRequestID
 
         // Play the game
         self.spinner.stopAnimating()
@@ -100,6 +104,9 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
         let url = URL()
         url.get("https://garethpaul-app.appspot.com/api/updown", completed: { (succeeded: Bool, data: NSString) -> () in
             dispatch_async(dispatch_get_main_queue()) {
+                if requestID != self.promptRequestID {
+                    return
+                }
                 self.fetchingPrompt = false
                 self.spinner.stopAnimating()
                 self.spinner.hidden = true
