@@ -115,6 +115,39 @@ def check_prompt_fetch_inflight_guard():
     )
 
 
+def check_motion_lifecycle_guard():
+    view_controller = read_text("UpDown/ViewController.swift")
+    require(
+        "override func viewWillAppear(animated: Bool)" in view_controller,
+        "view controller must restart motion updates when it appears",
+    )
+    require(
+        "super.viewWillAppear(animated)" in view_controller,
+        "viewWillAppear must call its superclass implementation",
+    )
+    require(
+        "if manager.deviceMotionActive" in view_controller,
+        "motion setup must skip duplicate active device-motion updates",
+    )
+    require(
+        "override func viewWillDisappear(animated: Bool)" in view_controller,
+        "view controller must stop motion updates when it disappears",
+    )
+    require(
+        "super.viewWillDisappear(animated)" in view_controller,
+        "viewWillDisappear must call its superclass implementation",
+    )
+    require(
+        "manager.stopDeviceMotionUpdates()" in view_controller,
+        "view controller must stop device-motion updates off screen",
+    )
+    require(
+        view_controller.index("if manager.deviceMotionActive")
+        < view_controller.index("manager.startDeviceMotionUpdatesToQueue"),
+        "motion active guard must run before starting device-motion updates",
+    )
+
+
 def check_docs_plans():
     require(DOCS_PLANS.is_dir(), "docs/plans must exist")
     plans = sorted(DOCS_PLANS.glob("*.md"))
@@ -137,6 +170,7 @@ def main():
         check_motion_callback_guard,
         check_play_state_is_not_implicitly_unwrapped,
         check_prompt_fetch_inflight_guard,
+        check_motion_lifecycle_guard,
         check_docs_plans,
     ]
     try:

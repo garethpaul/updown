@@ -2,6 +2,9 @@
 
 ## 2026-06-09
 
+- Stopped CoreMotion device-motion updates when the game view disappears and
+  made motion startup idempotent when the view appears.
+- Added static checker coverage for the motion lifecycle guard.
 - Added an in-flight prompt fetch guard so repeated motion updates do not start
   duplicate remote prompt requests before the active request completes.
 - Added static checker coverage for prompt fetch in-flight state.

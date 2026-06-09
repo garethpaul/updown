@@ -33,8 +33,22 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
         begin()
     }
 
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        begin()
+    }
+
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        manager.stopDeviceMotionUpdates()
+        fetchingPrompt = false
+        playing = false
+    }
 
     func begin(){
+        if manager.deviceMotionActive {
+            return
+        }
 
         // If there is a motion manager available
         if manager.deviceMotionAvailable {
