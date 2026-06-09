@@ -2,6 +2,9 @@
 
 ## 2026-06-09
 
+- Skipped MoPub interstitial loading and presentation while the checked-in
+  placeholder ad unit ID is still configured.
+- Added static checker coverage for interstitial ad-unit configuration guards.
 - Rejected prompt request URLs without a host before constructing URL requests.
 - Added static checker coverage for URL client host validation.
 - Rejected non-HTTPS prompt request URLs in the URL client before constructing

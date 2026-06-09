@@ -6,6 +6,9 @@ import UIKit
 import CoreMotion
 import MoPub
 
+// TODO: Replace this placeholder with your personal ad unit id.
+let InterstitialAdUnitID = "YOUR_AD_UNIT_ID"
+
 class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
 
     // Setup the Motion Manager
@@ -16,8 +19,7 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
     var fetchingPrompt = false
     var promptRequestID = 0
 
-    // TODO: Replace this test id with your personal ad unit id
-    var interstitial: MPInterstitialAdController = MPInterstitialAdController(forAdUnitId: "YOUR_AD_UNIT_ID")
+    var interstitial: MPInterstitialAdController = MPInterstitialAdController(forAdUnitId: InterstitialAdUnitID)
 
     // IBOutlet
     @IBOutlet var gameText: UILabel!
@@ -27,8 +29,10 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
         super.viewDidLoad()
 
         // Show the interstitial ad unit
-        self.interstitial.delegate = self
-        self.interstitial.loadAd()
+        if self.interstitialAdUnitConfigured() {
+            self.interstitial.delegate = self
+            self.interstitial.loadAd()
+        }
 
         // Begin the app
         begin()
@@ -130,9 +134,13 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
         self.spinner.startAnimating()
     }
 
+    func interstitialAdUnitConfigured() -> Bool {
+        return InterstitialAdUnitID != "YOUR_AD_UNIT_ID"
+    }
+
     // Present the ad only after it has loaded and is ready
     func interstitialDidLoadAd(interstitial: MPInterstitialAdController) {
-        if (interstitial.ready) {
+        if (self.interstitialAdUnitConfigured() && interstitial.ready) {
             interstitial.showFromViewController(self)
         }
     }

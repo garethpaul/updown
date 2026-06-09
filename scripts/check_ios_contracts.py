@@ -15,6 +15,7 @@ CANONICAL_PLAN = DOCS_PLANS / "2026-06-08-updown-baseline.md"
 STALE_PROMPT_PLAN = DOCS_PLANS / "2026-06-09-stale-prompt-completion-guard.md"
 HTTPS_URL_PLAN = DOCS_PLANS / "2026-06-09-url-client-https-guard.md"
 URL_HOST_PLAN = DOCS_PLANS / "2026-06-09-url-client-host-guard.md"
+INTERSTITIAL_AD_UNIT_PLAN = DOCS_PLANS / "2026-06-09-interstitial-ad-unit-guard.md"
 
 
 def fail(message):
@@ -210,6 +211,43 @@ def check_stale_prompt_completion_guard():
     )
 
 
+def check_interstitial_ad_unit_guard():
+    view_controller = read_text("UpDown/ViewController.swift")
+    require(
+        'MPInterstitialAdController(forAdUnitId: "YOUR_AD_UNIT_ID")' not in view_controller,
+        "interstitial ads must not load directly from the placeholder ad unit ID",
+    )
+    require(
+        "let InterstitialAdUnitID" in view_controller,
+        "interstitial ad unit ID must be centralized for local configuration",
+    )
+    require(
+        "MPInterstitialAdController(forAdUnitId: InterstitialAdUnitID)" in view_controller,
+        "interstitial ad controller must use the centralized ad unit ID",
+    )
+    require(
+        "func interstitialAdUnitConfigured() -> Bool" in view_controller,
+        "view controller must expose an interstitial ad unit configuration guard",
+    )
+    require(
+        'InterstitialAdUnitID != "YOUR_AD_UNIT_ID"' in view_controller,
+        "interstitial ad unit guard must reject the checked-in placeholder",
+    )
+    require(
+        "if self.interstitialAdUnitConfigured()" in view_controller,
+        "viewDidLoad must skip interstitial loading when the placeholder ad unit remains",
+    )
+    require(
+        view_controller.index("if self.interstitialAdUnitConfigured()")
+        < view_controller.index("self.interstitial.loadAd()"),
+        "interstitial ad unit guard must run before loadAd",
+    )
+    require(
+        "self.interstitialAdUnitConfigured() && interstitial.ready" in view_controller,
+        "interstitial presentation must verify the ad unit is configured before showing",
+    )
+
+
 def check_docs_plans():
     require(DOCS_PLANS.is_dir(), "docs/plans must exist")
     plans = sorted(DOCS_PLANS.glob("*.md"))
@@ -218,6 +256,7 @@ def check_docs_plans():
     require(STALE_PROMPT_PLAN in plans, f"{STALE_PROMPT_PLAN.relative_to(ROOT)} must be present")
     require(HTTPS_URL_PLAN in plans, f"{HTTPS_URL_PLAN.relative_to(ROOT)} must be present")
     require(URL_HOST_PLAN in plans, f"{URL_HOST_PLAN.relative_to(ROOT)} must be present")
+    require(INTERSTITIAL_AD_UNIT_PLAN in plans, f"{INTERSTITIAL_AD_UNIT_PLAN.relative_to(ROOT)} must be present")
 
     for plan in plans:
         text = plan.read_text(encoding="utf-8")
@@ -238,6 +277,7 @@ def main():
         check_prompt_fetch_inflight_guard,
         check_motion_lifecycle_guard,
         check_stale_prompt_completion_guard,
+        check_interstitial_ad_unit_guard,
         check_docs_plans,
     ]
     try:

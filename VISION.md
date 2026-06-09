@@ -16,6 +16,7 @@ Priority:
 
 - Preserve the motion-triggered play/stop flow
 - Keep ad-unit IDs as developer-provided configuration
+- Skip ad loading while the checked-in MoPub placeholder ad unit is still in use
 - Keep Fabric build upload credentials in local environment variables
 - Make remote prompt fetching visible
 - Treat Fabric/Crashlytics, MoPub, and Swift versions as legacy
@@ -58,6 +59,7 @@ safe UI content without validation.
 ## What We Will Not Merge (For Now)
 
 - Checked-in ad credentials
+- Loading ads from placeholder ad-unit IDs
 - Hidden analytics
 - Silent remote endpoint changes
 - Broad SDK rewrites without preserving the prototype behavior

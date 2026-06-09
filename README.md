@@ -47,15 +47,15 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 - Open `UpDown.xcodeproj` in Xcode, choose the app or sample scheme, and run it on the matching simulator/device.
 - Run `make check` for static project, URL-client, motion callback, motion
-  lifecycle, and play state checks.
+  lifecycle, interstitial ad-unit, and play state checks.
   The build step runs Xcode only on hosts where `xcodebuild` is installed.
 
 ## Testing and Verification
 
 - `make check` runs plist, storyboard, asset, project, Fabric build-secret,
   URL-client, HTTPS scheme, URL host, HTTP status, prompt failure, prompt
-  in-flight, motion callback, motion lifecycle, stale prompt completion, and
-  play-state contract checks.
+  in-flight, motion callback, motion lifecycle, stale prompt completion,
+  interstitial ad-unit, and play-state contract checks.
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
@@ -67,6 +67,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Set `FABRIC_API_KEY` and `FABRIC_BUILD_SECRET` locally when Fabric dSYM
   upload is needed during Xcode builds. The build phase skips that upload when
   the variables are absent.
+- Replace `InterstitialAdUnitID` locally before testing MoPub interstitials.
+  The checked-in placeholder does not load or present ads.
 
 ## Security and Privacy Notes
 
@@ -102,6 +104,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   request URLs without hosts before constructing requests.
 - See `docs/plans/2026-06-09-stale-prompt-completion-guard.md` for ignoring
   stale remote prompt completions after the game view disappears.
+- See `docs/plans/2026-06-09-interstitial-ad-unit-guard.md` for skipping MoPub
+  interstitial loading while the placeholder ad unit ID is still checked in.
 
 ## Contributing
 
