@@ -2,6 +2,7 @@
 
 ## 2026-06-08
 
+- Added canonical `docs/plans` coverage to the static iOS contract checker.
 - Guarded CoreMotion callbacks so missing motion samples are skipped instead of
   force-unwrapped.
 - Extended the static gate to cover nil-safe motion callback handling.
