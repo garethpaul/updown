@@ -12,7 +12,7 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
     var manager = CMMotionManager()
 
     // Playing bool to be set when someone is playing the game
-    var playing = false as Bool!
+    var playing = false
 
     // TODO: Replace this test id with your personal ad unit id
     var interstitial: MPInterstitialAdController = MPInterstitialAdController(forAdUnitId: "YOUR_AD_UNIT_ID")
@@ -49,7 +49,7 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
                     let magnitude = sqrt(pow(currentMotion.attitude.roll, 2) + pow(currentMotion.attitude.yaw, 2) + pow(currentMotion.attitude.pitch, 2))
 
                     // Determine whether the player is playing via boolean
-                    let playing = self.playing as Bool!
+                    let playing = self.playing
 
                     // If the magnitude of change is above 1 or 2.6 (tried via testing changes)
                     if magnitude >= 1 && magnitude <= 2.6 {

@@ -2,6 +2,8 @@
 
 ## 2026-06-08
 
+- Replaced the implicitly unwrapped `playing` state with a concrete Bool and
+  added a static guard against forced play-state casts.
 - Made remote prompt fetch failures show fallback text and keep play state
   false instead of entering play mode with empty content.
 - Added canonical `docs/plans` coverage to the static iOS contract checker.

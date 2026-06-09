@@ -46,13 +46,14 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 ## Running or Using the Project
 
 - Open `UpDown.xcodeproj` in Xcode, choose the app or sample scheme, and run it on the matching simulator/device.
-- Run `make check` for static project, URL-client, and motion callback checks.
+- Run `make check` for static project, URL-client, motion callback, and play
+  state checks.
   The build step runs Xcode only on hosts where `xcodebuild` is installed.
 
 ## Testing and Verification
 
 - `make check` runs plist, storyboard, asset, project, URL-client, prompt
-  failure, and motion callback contract checks.
+  failure, motion callback, and play-state contract checks.
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
@@ -81,6 +82,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   verification baseline.
 - See `docs/plans/2026-06-08-prompt-fetch-failure.md` for visible remote
   prompt failure handling.
+- See `docs/plans/2026-06-08-play-state-bool.md` for non-optional game-state
+  handling in the motion callback.
 
 ## Contributing
 

@@ -92,6 +92,13 @@ def check_motion_callback_guard():
     require("if let currentMotion = motion" in view_controller, "motion callback must guard optional motion data")
 
 
+def check_play_state_is_not_implicitly_unwrapped():
+    view_controller = read_text("UpDown/ViewController.swift")
+    require("var playing = false as Bool!" not in view_controller, "play state must not be an implicitly unwrapped Bool")
+    require("self.playing as Bool!" not in view_controller, "motion callback must not force-cast play state")
+    require("var playing = false" in view_controller, "play state must remain initialized as a concrete Bool")
+
+
 def check_docs_plans():
     require(DOCS_PLANS.is_dir(), "docs/plans must exist")
     plans = sorted(DOCS_PLANS.glob("*.md"))
@@ -112,6 +119,7 @@ def main():
         check_remote_endpoint_is_https,
         check_prompt_fetch_failure_handling,
         check_motion_callback_guard,
+        check_play_state_is_not_implicitly_unwrapped,
         check_docs_plans,
     ]
     try:

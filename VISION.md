@@ -21,6 +21,8 @@ Priority:
 - Keep remote prompt fetch failures non-crashing and visible
 - Keep play state false when remote prompts fail to load
 - Treat missing CoreMotion samples as non-crashing no-ops
+- Keep motion play state as concrete local state, not an implicitly unwrapped
+  optional
 
 Next priorities:
 
