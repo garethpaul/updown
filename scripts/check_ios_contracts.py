@@ -14,6 +14,7 @@ DOCS_PLANS = ROOT / "docs/plans"
 CANONICAL_PLAN = DOCS_PLANS / "2026-06-08-updown-baseline.md"
 STALE_PROMPT_PLAN = DOCS_PLANS / "2026-06-09-stale-prompt-completion-guard.md"
 HTTPS_URL_PLAN = DOCS_PLANS / "2026-06-09-url-client-https-guard.md"
+URL_HOST_PLAN = DOCS_PLANS / "2026-06-09-url-client-host-guard.md"
 
 
 def fail(message):
@@ -74,6 +75,12 @@ def check_url_client_guard():
     require(
         source.index('requestURL.scheme != "https"') < source.index("NSMutableURLRequest"),
         "URL client must validate HTTPS before constructing requests",
+    )
+    require("if let host = requestURL.host" in source, "URL client must guard request URL hosts")
+    require("host.isEmpty" in source, "URL client must reject empty request URL hosts")
+    require(
+        source.index("if let host = requestURL.host") < source.index("NSMutableURLRequest"),
+        "URL client must validate host presence before constructing requests",
     )
     require("response as? NSHTTPURLResponse" in source, "URL client must inspect HTTP responses")
     require("httpResponse.statusCode" in source, "URL client must inspect HTTP status codes")
@@ -210,6 +217,7 @@ def check_docs_plans():
     require(CANONICAL_PLAN in plans, f"{CANONICAL_PLAN.relative_to(ROOT)} must be present")
     require(STALE_PROMPT_PLAN in plans, f"{STALE_PROMPT_PLAN.relative_to(ROOT)} must be present")
     require(HTTPS_URL_PLAN in plans, f"{HTTPS_URL_PLAN.relative_to(ROOT)} must be present")
+    require(URL_HOST_PLAN in plans, f"{URL_HOST_PLAN.relative_to(ROOT)} must be present")
 
     for plan in plans:
         text = plan.read_text(encoding="utf-8")

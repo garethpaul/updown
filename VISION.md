@@ -22,6 +22,7 @@ Priority:
 - Keep remote prompt fetch failures non-crashing and visible
 - Keep play state false when remote prompts fail to load
 - Require HTTPS before issuing prompt requests
+- Require prompt request URLs to include a host before request construction
 - Reject non-2xx remote prompt responses before treating body text as content
 - Avoid duplicate remote prompt fetches while a fetch is already in flight
 - Ignore stale remote prompt completions after the game view disappears

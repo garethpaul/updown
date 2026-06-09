@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Rejected prompt request URLs without a host before constructing URL requests.
+- Added static checker coverage for URL client host validation.
 - Rejected non-HTTPS prompt request URLs in the URL client before constructing
   requests.
 - Added static checker coverage for HTTPS-only prompt URL handling.

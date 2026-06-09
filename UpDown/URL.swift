@@ -11,6 +11,15 @@ class URL{
                 completed(succeeded: false, data: NSString(string: ""))
                 return
             }
+            if let host = requestURL.host {
+                if host.isEmpty {
+                    completed(succeeded: false, data: NSString(string: ""))
+                    return
+                }
+            } else {
+                completed(succeeded: false, data: NSString(string: ""))
+                return
+            }
 
             var request = NSMutableURLRequest(URL: requestURL)
             var session = NSURLSession.sharedSession()
