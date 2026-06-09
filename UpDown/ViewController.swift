@@ -80,13 +80,18 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
         // Put a random string into the game
         let url = URL()
         url.get("https://garethpaul-app.appspot.com/api/updown", completed: { (succeeded: Bool, data: NSString) -> () in
-            // success
             dispatch_async(dispatch_get_main_queue()) {
-                self.gameText.text = data as String
+                self.spinner.stopAnimating()
+                self.spinner.hidden = true
+                if succeeded && data.length > 0 {
+                    self.gameText.text = data as String
+                    self.playing = true
+                } else {
+                    self.gameText.text = "Prompt unavailable"
+                    self.playing = false
+                }
                 self.gameText.hidden = false;
             }
-            // start playing
-            self.playing = true
         })
     }
 

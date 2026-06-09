@@ -51,8 +51,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 ## Testing and Verification
 
-- `make check` runs plist, storyboard, asset, project, URL-client, and motion
-  callback contract checks.
+- `make check` runs plist, storyboard, asset, project, URL-client, prompt
+  failure, and motion callback contract checks.
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
@@ -79,6 +79,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `VISION.md` for project direction and contribution guardrails.
 - See `docs/plans/2026-06-08-updown-baseline.md` for the current static
   verification baseline.
+- See `docs/plans/2026-06-08-prompt-fetch-failure.md` for visible remote
+  prompt failure handling.
 
 ## Contributing
 

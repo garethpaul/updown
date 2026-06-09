@@ -75,6 +75,17 @@ def check_remote_endpoint_is_https():
     require("https://garethpaul-app.appspot.com/api/updown" in view_controller, "remote prompt endpoint must stay HTTPS")
 
 
+def check_prompt_fetch_failure_handling():
+    view_controller = read_text("UpDown/ViewController.swift")
+    require("if succeeded && data.length > 0" in view_controller, "prompt fetch must check success and non-empty data")
+    require('"Prompt unavailable"' in view_controller, "prompt fetch failures must show visible fallback text")
+    require("self.playing = false" in view_controller, "prompt fetch failures must keep playing state false")
+    require(
+        view_controller.index("if succeeded && data.length > 0") < view_controller.index('"Prompt unavailable"'),
+        "prompt success branch must be checked before failure fallback",
+    )
+
+
 def check_motion_callback_guard():
     view_controller = read_text("UpDown/ViewController.swift")
     require("motion!" not in view_controller, "motion callback must not force-unwrap motion data")
@@ -99,6 +110,7 @@ def main():
         check_project_files_parse,
         check_url_client_guard,
         check_remote_endpoint_is_https,
+        check_prompt_fetch_failure_handling,
         check_motion_callback_guard,
         check_docs_plans,
     ]

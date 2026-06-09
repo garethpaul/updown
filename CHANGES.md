@@ -2,6 +2,8 @@
 
 ## 2026-06-08
 
+- Made remote prompt fetch failures show fallback text and keep play state
+  false instead of entering play mode with empty content.
 - Added canonical `docs/plans` coverage to the static iOS contract checker.
 - Guarded CoreMotion callbacks so missing motion samples are skipped instead of
   force-unwrapped.
