@@ -99,6 +99,22 @@ def check_play_state_is_not_implicitly_unwrapped():
     require("var playing = false" in view_controller, "play state must remain initialized as a concrete Bool")
 
 
+def check_prompt_fetch_inflight_guard():
+    view_controller = read_text("UpDown/ViewController.swift")
+    require("var fetchingPrompt = false" in view_controller, "prompt fetch state must start false")
+    require("if self.fetchingPrompt" in view_controller, "play must skip duplicate prompt fetches")
+    require("self.fetchingPrompt = true" in view_controller, "play must mark prompt fetches in flight")
+    require("self.fetchingPrompt = false" in view_controller, "prompt completion must clear in-flight state")
+    require(
+        view_controller.index("if self.fetchingPrompt") < view_controller.index("url.get("),
+        "duplicate prompt fetch guard must run before starting the network request",
+    )
+    require(
+        view_controller.index("self.fetchingPrompt = true") < view_controller.index("url.get("),
+        "prompt fetch must be marked in flight before starting the network request",
+    )
+
+
 def check_docs_plans():
     require(DOCS_PLANS.is_dir(), "docs/plans must exist")
     plans = sorted(DOCS_PLANS.glob("*.md"))
@@ -120,6 +136,7 @@ def main():
         check_prompt_fetch_failure_handling,
         check_motion_callback_guard,
         check_play_state_is_not_implicitly_unwrapped,
+        check_prompt_fetch_inflight_guard,
         check_docs_plans,
     ]
     try:

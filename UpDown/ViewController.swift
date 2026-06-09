@@ -13,6 +13,7 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
 
     // Playing bool to be set when someone is playing the game
     var playing = false
+    var fetchingPrompt = false
 
     // TODO: Replace this test id with your personal ad unit id
     var interstitial: MPInterstitialAdController = MPInterstitialAdController(forAdUnitId: "YOUR_AD_UNIT_ID")
@@ -72,6 +73,10 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
     }
 
     func play(){
+        if self.fetchingPrompt {
+            return
+        }
+        self.fetchingPrompt = true
 
         // Play the game
         self.spinner.stopAnimating()
@@ -81,6 +86,7 @@ class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
         let url = URL()
         url.get("https://garethpaul-app.appspot.com/api/updown", completed: { (succeeded: Bool, data: NSString) -> () in
             dispatch_async(dispatch_get_main_queue()) {
+                self.fetchingPrompt = false
                 self.spinner.stopAnimating()
                 self.spinner.hidden = true
                 if succeeded && data.length > 0 {

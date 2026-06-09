@@ -53,7 +53,7 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 ## Testing and Verification
 
 - `make check` runs plist, storyboard, asset, project, URL-client, prompt
-  failure, motion callback, and play-state contract checks.
+  failure, prompt in-flight, motion callback, and play-state contract checks.
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
@@ -84,6 +84,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   prompt failure handling.
 - See `docs/plans/2026-06-08-play-state-bool.md` for non-optional game-state
   handling in the motion callback.
+- See `docs/plans/2026-06-09-prompt-fetch-inflight-guard.md` for duplicate
+  remote prompt fetch prevention.
 
 ## Contributing
 

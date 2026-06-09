@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-09
+
+- Added an in-flight prompt fetch guard so repeated motion updates do not start
+  duplicate remote prompt requests before the active request completes.
+- Added static checker coverage for prompt fetch in-flight state.
+
 ## 2026-06-08
 
 - Replaced the implicitly unwrapped `playing` state with a concrete Bool and
