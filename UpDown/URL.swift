@@ -16,6 +16,17 @@ class URL{
                     return
                 }
 
+                if let httpResponse = response as? NSHTTPURLResponse {
+                    let statusCode = httpResponse.statusCode
+                    if statusCode < 200 || statusCode >= 300 {
+                        completed(succeeded: false, data: NSString(string: ""))
+                        return
+                    }
+                } else {
+                    completed(succeeded: false, data: NSString(string: ""))
+                    return
+                }
+
                 if let strData = NSString(data: data, encoding: NSUTF8StringEncoding) {
                     completed(succeeded: true, data: strData)
                 } else {

@@ -68,6 +68,14 @@ def check_url_client_guard():
     require("strData!" not in source, "URL client must not force-unwrap decoded response text")
     require("try json" not in source, "URL client must not reference undefined JSON parsing state")
     require("completed(succeeded: false" in source, "URL client must report request/decode failures")
+    require("response as? NSHTTPURLResponse" in source, "URL client must inspect HTTP responses")
+    require("httpResponse.statusCode" in source, "URL client must inspect HTTP status codes")
+    require("statusCode < 200" in source, "URL client must reject statuses below HTTP 200")
+    require("statusCode >= 300" in source, "URL client must reject statuses outside the 2xx range")
+    require(
+        source.index("httpResponse.statusCode") < source.index("NSString(data: data"),
+        "URL client must validate HTTP status before decoding response text",
+    )
 
 
 def check_remote_endpoint_is_https():

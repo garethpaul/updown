@@ -5,6 +5,9 @@
 - Moved Fabric dSYM upload credentials out of the Xcode project build phase and
   into local environment variables.
 - Added static checker coverage that rejects checked-in Fabric build secrets.
+- Rejected non-2xx remote prompt responses in the URL client before decoding
+  response text.
+- Added static checker coverage for HTTP status handling in the URL client.
 - Stopped CoreMotion device-motion updates when the game view disappears and
   made motion startup idempotent when the view appears.
 - Added static checker coverage for the motion lifecycle guard.
