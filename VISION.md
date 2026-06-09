@@ -21,6 +21,7 @@ Priority:
 - Treat Fabric/Crashlytics, MoPub, and Swift versions as legacy
 - Keep remote prompt fetch failures non-crashing and visible
 - Keep play state false when remote prompts fail to load
+- Require HTTPS before issuing prompt requests
 - Reject non-2xx remote prompt responses before treating body text as content
 - Avoid duplicate remote prompt fetches while a fetch is already in flight
 - Ignore stale remote prompt completions after the game view disappears

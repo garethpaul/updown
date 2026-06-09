@@ -7,6 +7,11 @@ import Foundation
 class URL{
     func get(url : String, completed : (succeeded: Bool, data: NSString) -> ()) {
         if let requestURL = NSURL(string: url) {
+            if requestURL.scheme != "https" {
+                completed(succeeded: false, data: NSString(string: ""))
+                return
+            }
+
             var request = NSMutableURLRequest(URL: requestURL)
             var session = NSURLSession.sharedSession()
             request.HTTPMethod = "GET"

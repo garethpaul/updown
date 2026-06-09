@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCS_PLANS = ROOT / "docs/plans"
 CANONICAL_PLAN = DOCS_PLANS / "2026-06-08-updown-baseline.md"
 STALE_PROMPT_PLAN = DOCS_PLANS / "2026-06-09-stale-prompt-completion-guard.md"
+HTTPS_URL_PLAN = DOCS_PLANS / "2026-06-09-url-client-https-guard.md"
 
 
 def fail(message):
@@ -69,6 +70,11 @@ def check_url_client_guard():
     require("strData!" not in source, "URL client must not force-unwrap decoded response text")
     require("try json" not in source, "URL client must not reference undefined JSON parsing state")
     require("completed(succeeded: false" in source, "URL client must report request/decode failures")
+    require('requestURL.scheme != "https"' in source, "URL client must reject non-HTTPS request URLs")
+    require(
+        source.index('requestURL.scheme != "https"') < source.index("NSMutableURLRequest"),
+        "URL client must validate HTTPS before constructing requests",
+    )
     require("response as? NSHTTPURLResponse" in source, "URL client must inspect HTTP responses")
     require("httpResponse.statusCode" in source, "URL client must inspect HTTP status codes")
     require("statusCode < 200" in source, "URL client must reject statuses below HTTP 200")
@@ -203,6 +209,7 @@ def check_docs_plans():
     require(plans, "docs/plans must contain completed maintenance plans")
     require(CANONICAL_PLAN in plans, f"{CANONICAL_PLAN.relative_to(ROOT)} must be present")
     require(STALE_PROMPT_PLAN in plans, f"{STALE_PROMPT_PLAN.relative_to(ROOT)} must be present")
+    require(HTTPS_URL_PLAN in plans, f"{HTTPS_URL_PLAN.relative_to(ROOT)} must be present")
 
     for plan in plans:
         text = plan.read_text(encoding="utf-8")

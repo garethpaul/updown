@@ -2,6 +2,9 @@
 
 ## 2026-06-09
 
+- Rejected non-HTTPS prompt request URLs in the URL client before constructing
+  requests.
+- Added static checker coverage for HTTPS-only prompt URL handling.
 - Added a prompt request-generation guard so stale remote prompt completions do
   not update game UI or play state after the view disappears.
 - Added static checker coverage for stale prompt completion invalidation.
