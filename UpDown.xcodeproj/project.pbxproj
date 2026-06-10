@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3BDF8D5F6D537110EA4C666C /* PromptProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80EAFD75001AECF2928018BD /* PromptProvider.swift */; };
 		FD5A04481A575279002911E6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD5A04471A575279002911E6 /* AppDelegate.swift */; };
 		FD5A044A1A575279002911E6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD5A04491A575279002911E6 /* ViewController.swift */; };
 		FD5A044D1A575279002911E6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FD5A044B1A575279002911E6 /* Main.storyboard */; };
@@ -14,23 +15,7 @@
 		FD5A04521A575279002911E6 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = FD5A04501A575279002911E6 /* LaunchScreen.xib */; };
 		FD5A045E1A575279002911E6 /* UpDownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD5A045D1A575279002911E6 /* UpDownTests.swift */; };
 		FD5A04681A5752AC002911E6 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD5A04671A5752AC002911E6 /* CoreMotion.framework */; };
-		FD5A046C1A5764E1002911E6 /* URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD5A046B1A5764E1002911E6 /* URL.swift */; };
-		FD5A05F11A577DBF002911E6 /* MoPub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD5A05EE1A577DBF002911E6 /* MoPub.framework */; };
-		FD5A05F21A577DBF002911E6 /* MoPub.bundle in Resources */ = {isa = PBXBuildFile; fileRef = FD5A05EF1A577DBF002911E6 /* MoPub.bundle */; };
-		FD5A05F31A577DBF002911E6 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD5A05F01A577DBF002911E6 /* Fabric.framework */; };
-		FD5A05F51A577F1E002911E6 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD5A05F41A577F1E002911E6 /* Crashlytics.framework */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXBuildRule section */
-		FD5A05EC1A577DAC002911E6 /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.proxy.script;
-			fileType = pattern.proxy;
-			isEditable = 1;
-			outputFiles = (
-			);
-		};
-/* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
 		FD5A04581A575279002911E6 /* PBXContainerItemProxy */ = {
@@ -43,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		80EAFD75001AECF2928018BD /* PromptProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PromptProvider.swift; sourceTree = "<group>"; };
 		FD5A04421A575279002911E6 /* UpDown.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UpDown.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FD5A04461A575279002911E6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FD5A04471A575279002911E6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -54,11 +40,6 @@
 		FD5A045C1A575279002911E6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FD5A045D1A575279002911E6 /* UpDownTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpDownTests.swift; sourceTree = "<group>"; };
 		FD5A04671A5752AC002911E6 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
-		FD5A046B1A5764E1002911E6 /* URL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URL.swift; sourceTree = "<group>"; };
-		FD5A05EE1A577DBF002911E6 /* MoPub.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = MoPub.framework; sourceTree = "<group>"; };
-		FD5A05EF1A577DBF002911E6 /* MoPub.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = MoPub.bundle; path = MoPub.framework/Versions/A/Resources/MoPub.bundle; sourceTree = "<group>"; };
-		FD5A05F01A577DBF002911E6 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
-		FD5A05F41A577F1E002911E6 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,10 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FD5A05F11A577DBF002911E6 /* MoPub.framework in Frameworks */,
 				FD5A04681A5752AC002911E6 /* CoreMotion.framework in Frameworks */,
-				FD5A05F51A577F1E002911E6 /* Crashlytics.framework in Frameworks */,
-				FD5A05F31A577DBF002911E6 /* Fabric.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,10 +64,6 @@
 		FD5A04391A575279002911E6 = {
 			isa = PBXGroup;
 			children = (
-				FD5A05F41A577F1E002911E6 /* Crashlytics.framework */,
-				FD5A05EE1A577DBF002911E6 /* MoPub.framework */,
-				FD5A05EF1A577DBF002911E6 /* MoPub.bundle */,
-				FD5A05F01A577DBF002911E6 /* Fabric.framework */,
 				FD5A04671A5752AC002911E6 /* CoreMotion.framework */,
 				FD5A04441A575279002911E6 /* UpDown */,
 				FD5A045A1A575279002911E6 /* UpDownTests */,
@@ -111,11 +85,11 @@
 			children = (
 				FD5A04471A575279002911E6 /* AppDelegate.swift */,
 				FD5A04491A575279002911E6 /* ViewController.swift */,
-				FD5A046B1A5764E1002911E6 /* URL.swift */,
 				FD5A044B1A575279002911E6 /* Main.storyboard */,
 				FD5A044E1A575279002911E6 /* Images.xcassets */,
 				FD5A04501A575279002911E6 /* LaunchScreen.xib */,
 				FD5A04451A575279002911E6 /* Supporting Files */,
+				80EAFD75001AECF2928018BD /* PromptProvider.swift */,
 			);
 			path = UpDown;
 			sourceTree = "<group>";
@@ -155,10 +129,8 @@
 				FD5A043E1A575279002911E6 /* Sources */,
 				FD5A043F1A575279002911E6 /* Frameworks */,
 				FD5A04401A575279002911E6 /* Resources */,
-				FD5A05ED1A577DB2002911E6 /* ShellScript */,
 			);
 			buildRules = (
-				FD5A05EC1A577DAC002911E6 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -191,7 +163,7 @@
 		FD5A043A1A575279002911E6 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0620;
+				LastUpgradeCheck = 1640;
 				ORGANIZATIONNAME = GarethPaul;
 				TargetAttributes = {
 					FD5A04411A575279002911E6 = {
@@ -230,7 +202,6 @@
 				FD5A044D1A575279002911E6 /* Main.storyboard in Resources */,
 				FD5A04521A575279002911E6 /* LaunchScreen.xib in Resources */,
 				FD5A044F1A575279002911E6 /* Images.xcassets in Resources */,
-				FD5A05F21A577DBF002911E6 /* MoPub.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,22 +214,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		FD5A05ED1A577DB2002911E6 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if [ -n \"$FABRIC_API_KEY\" ] && [ -n \"$FABRIC_BUILD_SECRET\" ]; then ./Fabric.framework/run \"$FABRIC_API_KEY\" \"$FABRIC_BUILD_SECRET\"; else echo \"Fabric upload skipped: FABRIC_API_KEY and FABRIC_BUILD_SECRET are not set.\"; fi";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		FD5A043E1A575279002911E6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -266,7 +221,7 @@
 			files = (
 				FD5A044A1A575279002911E6 /* ViewController.swift in Sources */,
 				FD5A04481A575279002911E6 /* AppDelegate.swift in Sources */,
-				FD5A046C1A5764E1002911E6 /* URL.swift in Sources */,
+				3BDF8D5F6D537110EA4C666C /* PromptProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -342,11 +297,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -379,9 +335,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -391,19 +348,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/gjones/Downloads/MoPubSDK/AdNetworkSupport/Millennial/SDK,
-					"$(PROJECT_DIR)",
-				);
 				INFOPLIST_FILE = UpDown/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/gjones/Downloads/MoPubSDK/AdNetworkSupport/GoogleAdMob/SDK,
-				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.garethpaul.UpDown;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -411,19 +361,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/gjones/Downloads/MoPubSDK/AdNetworkSupport/Millennial/SDK,
-					"$(PROJECT_DIR)",
-				);
 				INFOPLIST_FILE = UpDown/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/gjones/Downloads/MoPubSDK/AdNetworkSupport/GoogleAdMob/SDK,
-				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.garethpaul.UpDown;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -440,8 +383,11 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = UpDownTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.garethpaul.UpDownTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UpDown.app/UpDown";
 			};
 			name = Debug;
@@ -455,8 +401,11 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = UpDownTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.garethpaul.UpDownTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UpDown.app/UpDown";
 			};
 			name = Release;

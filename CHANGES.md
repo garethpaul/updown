@@ -2,6 +2,18 @@
 
 ## 2026-06-10
 
+- Migrated the project to Swift 5, Xcode 16, and an iOS 13 deployment target
+  with explicit app/test bundle identifiers and a shared test scheme.
+- Replaced the dead remote prompt endpoint with a bundled offline prompt
+  provider and added four deterministic XCTest cases.
+- Removed the retired MoPub, Fabric, and Crashlytics binaries, build phase,
+  imports, ad behavior, analytics startup, and developer-specific search paths.
+- Modernized CoreMotion lifecycle code with a weak callback capture and removed
+  obsolete spinner state from the storyboard.
+- Added least-privilege Python contract CI plus a real macOS Xcode test job.
+
+## 2026-06-10
+
 - Added least-privilege GitHub Actions static verification on Python 3.10 and
   3.12 with immutable action pins and a bounded runtime.
 - Extended the local iOS contract checker to enforce workflow triggers,

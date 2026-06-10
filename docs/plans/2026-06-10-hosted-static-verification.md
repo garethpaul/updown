@@ -1,26 +1,24 @@
-# Hosted Static Verification
+# Hosted Verification
 
 Status: Completed
 
 ## Problem
 
-The repository had 13 grouped static checks for the legacy Xcode project,
-Swift safety guards, resources, framework placeholders, and documentation, but
-no hosted workflow ran them. This Linux environment cannot honestly claim an
-iOS build because `xcodebuild` is unavailable.
+The repository had portable contracts but no hosted workflow. A static-only
+workflow would still leave the modernized Swift source, shared scheme, XCTest,
+storyboard compilation, and simulator link step unverified.
 
 ## Plan
 
-1. Add least-privilege GitHub Actions verification on Python 3.10 and 3.12.
+1. Add least-privilege portable verification on Python 3.10 and 3.12.
 2. Pin third-party actions to verified immutable commits and bound runtime.
-3. Enforce the workflow trigger, permissions, matrix, pins, timeout, and
-   `make check` command through the local static checker.
-4. Document that hosted CI validates portable contracts while Xcode build and
-   device behavior remain a separate macOS verification boundary.
+3. Add a macOS 15 job that runs the shared Xcode test scheme through the same
+   `make check` command developers use.
+4. Enforce triggers, permissions, cancellation, matrix, pins, runner, timeout,
+   and commands through the portable checker.
 
 ## Verification
 
 - `make check`
 - `python3 -m py_compile scripts/check_ios_contracts.py`
-- Negative workflow-permission mutation rejected by `make lint`
 - `git diff --check`
