@@ -37,7 +37,8 @@ the build and offline prompt behavior but cannot reproduce real tilting.
 
 - `make static` validates the Xcode graph, plists, Interface Builder XML,
   assets, Swift 5/iOS 13 settings, offline prompt contracts, motion lifecycle,
-  shared scheme, CI, and completed maintenance plans.
+  motion threshold hysteresis, shared scheme, CI, and completed maintenance
+  plans.
 - `make test` runs the `UpDown` XCTest scheme when `xcodebuild` is available.
 - `make build` builds the simulator app without code signing.
 - `make check` runs portable contracts everywhere and real XCTest on macOS.
@@ -49,12 +50,12 @@ immutable commits.
 
 ## Tested Behavior
 
-`PromptProviderTests` verifies deterministic prompt selection, immediate-repeat
-prevention, single-item and empty-source behavior, out-of-range selector
-handling, and the bundled prompt inventory.
+XCTest verifies deterministic prompt selection, immediate-repeat prevention,
+single-item and empty-source behavior, out-of-range selector handling, the
+bundled prompt inventory, and motion threshold hysteresis.
 Static contracts additionally require motion callbacks to avoid retaining the
-view controller, prevent duplicate subscriptions, and stop when the view leaves
-the screen.
+view controller, prevent duplicate subscriptions, tolerate small threshold
+fluctuations while playing, and stop when the view leaves the screen.
 
 ## Privacy and Security
 
@@ -80,6 +81,8 @@ the screen.
   decisions and project scope.
 - `docs/plans/2026-06-10-no-immediate-prompt-repeat.md` records the completed
   prompt repeat-prevention change.
+- `docs/plans/2026-06-10-motion-threshold-hysteresis.md` records the completed
+  motion boundary stabilization change.
 
 ## Contributing
 

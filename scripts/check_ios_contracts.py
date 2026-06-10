@@ -14,6 +14,7 @@ DOCS_PLANS = ROOT / "docs/plans"
 MODERNIZATION_PLAN = DOCS_PLANS / "2026-06-10-swift5-offline-modernization.md"
 HOSTED_VERIFICATION_PLAN = DOCS_PLANS / "2026-06-10-hosted-static-verification.md"
 NO_REPEAT_PLAN = DOCS_PLANS / "2026-06-10-no-immediate-prompt-repeat.md"
+MOTION_HYSTERESIS_PLAN = DOCS_PLANS / "2026-06-10-motion-threshold-hysteresis.md"
 RETIRED_SDKS = ("Crashlytics.framework", "Fabric.framework", "MoPub.framework")
 
 
@@ -111,6 +112,7 @@ def check_offline_prompt_contracts():
 
 def check_motion_lifecycle_contracts():
     source = read_text("UpDown/ViewController.swift")
+    tests = read_text("UpDownTests/UpDownTests.swift")
     require("[weak self]" in source, "motion callback must not retain the view controller")
     require("motionManager.isDeviceMotionAvailable" in source, "motion availability must be checked")
     require("!motionManager.isDeviceMotionActive" in source, "duplicate motion subscriptions must be prevented")
@@ -118,6 +120,18 @@ def check_motion_lifecycle_contracts():
     require("override func viewWillDisappear(_ animated: Bool)" in source, "modern lifecycle override must be used")
     require("promptProvider.nextPrompt()" in source, "motion play state must use the offline prompt provider")
     require("@IBOutlet private weak var gameText" in source, "storyboard outlet must avoid retaining its view")
+    require("struct MotionHysteresisGate" in source, "motion thresholds must use a testable hysteresis gate")
+    require("startRange: ClosedRange<Double> = 1.0...2.6" in source, "motion entry range must preserve the existing thresholds")
+    require("continuationRange: ClosedRange<Double> = 0.9...2.7" in source, "motion continuation range must tolerate boundary noise")
+    require("currentlyPlaying ? continuationRange : startRange" in source, "motion gate must choose thresholds from current play state")
+    require("motionGate.shouldPlay(" in source, "motion callback must use the hysteresis gate")
+    require("if (1...2.6).contains(magnitude)" not in source, "motion callback must not bypass hysteresis")
+    for test_name in (
+        "testStartsOnlyInsideStartRange",
+        "testKeepsPlayingAcrossSmallBoundaryFluctuations",
+        "testStopsOutsideContinuationRange",
+    ):
+        require(test_name in tests, f"XCTest coverage is missing {test_name}")
 
 
 def check_hosted_verification():
@@ -164,6 +178,7 @@ def check_docs_plans():
     require(MODERNIZATION_PLAN in plans, f"{MODERNIZATION_PLAN.relative_to(ROOT)} must be present")
     require(HOSTED_VERIFICATION_PLAN in plans, f"{HOSTED_VERIFICATION_PLAN.relative_to(ROOT)} must be present")
     require(NO_REPEAT_PLAN in plans, f"{NO_REPEAT_PLAN.relative_to(ROOT)} must be present")
+    require(MOTION_HYSTERESIS_PLAN in plans, f"{MOTION_HYSTERESIS_PLAN.relative_to(ROOT)} must be present")
     for plan in plans:
         text = plan.read_text(encoding="utf-8")
         require("Status: Completed" in text, f"{plan.name} must be completed")

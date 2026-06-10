@@ -2,6 +2,8 @@
 
 ## 2026-06-10
 
+- Added a testable motion hysteresis gate so small sensor fluctuations at the
+  play thresholds do not stop, restart, and consume another prompt.
 - Prevented consecutive duplicate prompts while preserving empty, single-item,
   and invalid-selector behavior with deterministic XCTest coverage.
 - Made local Make and test-script execution root-independent and fixed the
