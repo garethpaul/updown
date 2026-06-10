@@ -54,6 +54,10 @@ def check_project_files_parse():
     for path in (ROOT / "UpDown/Images.xcassets").rglob("Contents.json"):
         json.loads(path.read_text(encoding="utf-8"))
 
+    icon_catalog = read_text("UpDown/Images.xcassets/AppIcon.appiconset/Contents.json")
+    for icon in ("Icon-iPad-76@2x.png", "Icon-iPad-83.5@2x.png", "Icon-AppStore-1024.png"):
+        require(icon in icon_catalog and (ROOT / "UpDown/Images.xcassets/AppIcon.appiconset" / icon).exists(), f"required app icon is missing: {icon}")
+
 
 def check_modern_project_contracts():
     project = read_text("UpDown.xcodeproj/project.pbxproj")

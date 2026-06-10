@@ -10,6 +10,7 @@
   imports, ad behavior, analytics startup, and developer-specific search paths.
 - Modernized CoreMotion lifecycle code with a weak callback capture and removed
   obsolete spinner state from the storyboard.
+- Completed the iPad and App Store icon catalog with opaque generated assets.
 - Added least-privilege Python contract CI plus a real macOS Xcode test job.
 
 ## 2026-06-10
