@@ -56,6 +56,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   URL-client, HTTPS scheme, URL host, HTTP status, prompt failure, prompt
   in-flight, motion callback, motion lifecycle, stale prompt completion,
   interstitial ad-unit, and play-state contract checks.
+- GitHub Actions runs the portable static contracts on Python 3.10 and 3.12
+  with read-only repository permissions and immutable action pins. It does not
+  claim an iOS simulator or device build.
 - Completed maintenance plans live under `docs/plans` and are checked by
   `make check`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
@@ -106,6 +109,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   stale remote prompt completions after the game view disappears.
 - See `docs/plans/2026-06-09-interstitial-ad-unit-guard.md` for skipping MoPub
   interstitial loading while the placeholder ad unit ID is still checked in.
+- See `docs/plans/2026-06-10-hosted-static-verification.md` for the hosted
+  static-verification and Xcode boundary.
 
 ## Contributing
 

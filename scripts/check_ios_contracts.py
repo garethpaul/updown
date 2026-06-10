@@ -16,6 +16,7 @@ STALE_PROMPT_PLAN = DOCS_PLANS / "2026-06-09-stale-prompt-completion-guard.md"
 HTTPS_URL_PLAN = DOCS_PLANS / "2026-06-09-url-client-https-guard.md"
 URL_HOST_PLAN = DOCS_PLANS / "2026-06-09-url-client-host-guard.md"
 INTERSTITIAL_AD_UNIT_PLAN = DOCS_PLANS / "2026-06-09-interstitial-ad-unit-guard.md"
+HOSTED_VERIFICATION_PLAN = DOCS_PLANS / "2026-06-10-hosted-static-verification.md"
 
 
 def fail(message):
@@ -257,11 +258,28 @@ def check_docs_plans():
     require(HTTPS_URL_PLAN in plans, f"{HTTPS_URL_PLAN.relative_to(ROOT)} must be present")
     require(URL_HOST_PLAN in plans, f"{URL_HOST_PLAN.relative_to(ROOT)} must be present")
     require(INTERSTITIAL_AD_UNIT_PLAN in plans, f"{INTERSTITIAL_AD_UNIT_PLAN.relative_to(ROOT)} must be present")
+    require(HOSTED_VERIFICATION_PLAN in plans, f"{HOSTED_VERIFICATION_PLAN.relative_to(ROOT)} must be present")
 
     for plan in plans:
         text = plan.read_text(encoding="utf-8")
         require("Status: Completed" in text, f"{plan.name} must be completed")
         require("make check" in text, f"{plan.name} must document make check verification")
+
+
+def check_hosted_verification():
+    workflow = read_text(".github/workflows/check.yml")
+    for contract in [
+        "pull_request:",
+        "branches:\n      - master",
+        "permissions:\n  contents: read",
+        "timeout-minutes: 5",
+        'python-version: ["3.10", "3.12"]',
+        "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+        "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405",
+        "run: make check",
+    ]:
+        require(contract in workflow, f"hosted verification must include {contract!r}")
+    require("@v" not in workflow, "hosted verification actions must use immutable commits")
 
 
 def main():
@@ -278,6 +296,7 @@ def main():
         check_motion_lifecycle_guard,
         check_stale_prompt_completion_guard,
         check_interstitial_ad_unit_guard,
+        check_hosted_verification,
         check_docs_plans,
     ]
     try:
