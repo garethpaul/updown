@@ -9,7 +9,7 @@ lint: static
 
 test:
 	@if command -v xcodebuild >/dev/null 2>&1; then \
-		xcodebuild -project UpDown.xcodeproj -scheme UpDown -destination 'platform=iOS Simulator,name=iPhone 16 Pro' CODE_SIGNING_ALLOWED=NO test; \
+		./scripts/test_ios.sh; \
 	else \
 		echo "iOS tests skipped: xcodebuild is not available on this host."; \
 	fi

@@ -12,6 +12,8 @@
   obsolete spinner state from the storyboard.
 - Completed the iPad and App Store icon catalog with opaque generated assets.
 - Added least-privilege Python contract CI plus a real macOS Xcode test job.
+- Made hosted Xcode tests discover or create an iPhone simulator and fall back
+  to the Apple Silicon iOS-app destination when runner images expose no device.
 
 ## 2026-06-10
 

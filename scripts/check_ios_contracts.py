@@ -130,6 +130,11 @@ def check_hosted_verification():
         require(contract in workflow, f"hosted verification must include {contract!r}")
     require("@v" not in workflow, "hosted actions must use immutable commits")
 
+    test_script = read_text("scripts/test_ios.sh")
+    require("xcrun simctl list devices available -j" in test_script, "iOS tests must discover available simulators")
+    require("xcrun simctl create UpDown-CI" in test_script, "iOS tests must create a simulator when only a runtime is installed")
+    require("Designed for [iPad,iPhone]" in test_script, "iOS tests must retain an Apple Silicon fallback destination")
+
 
 def check_docs_plans():
     require(DOCS_PLANS.is_dir(), "docs/plans must exist")
