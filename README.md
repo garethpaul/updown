@@ -42,7 +42,7 @@ the build and offline prompt behavior but cannot reproduce real tilting.
 - `make build` builds the simulator app without code signing.
 - `make check` runs portable contracts everywhere and real XCTest on macOS.
 
-GitHub Actions runs static contracts on Python 3.10 and 3.12 and runs the full
+GitHub Actions runs static contracts on Python 3.10, 3.12, and 3.14 and runs the full
 Xcode test scheme on macOS 15. Workflow permissions are read-only, superseded
 runs are cancelled, and action revisions are pinned to immutable commits.
 

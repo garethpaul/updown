@@ -17,8 +17,8 @@
 
 ## 2026-06-10
 
-- Added least-privilege GitHub Actions static verification on Python 3.10 and
-  3.12 with immutable action pins and a bounded runtime.
+- Added least-privilege GitHub Actions static verification on Python 3.10,
+  3.12, and 3.14 with immutable action pins and a bounded runtime.
 - Extended the local iOS contract checker to enforce workflow triggers,
   permissions, action provenance, matrix, timeout, and command.
 - Documented that hosted CI covers portable contracts while Xcode and device

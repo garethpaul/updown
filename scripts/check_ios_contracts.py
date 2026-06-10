@@ -117,12 +117,13 @@ def check_hosted_verification():
     workflow = read_text(".github/workflows/check.yml")
     for contract in (
         "pull_request:",
+        "workflow_dispatch:",
         "branches:\n      - master",
         "permissions:\n  contents: read",
         "cancel-in-progress: true",
         "runs-on: macos-15",
         "timeout-minutes: 15",
-        'python-version: ["3.10", "3.12"]',
+        'python-version: ["3.10", "3.12", "3.14"]',
         "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
         "run: make static",
         "run: make check",
