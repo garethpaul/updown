@@ -65,6 +65,7 @@ def check_modern_project_contracts():
     require(project.count("IPHONEOS_DEPLOYMENT_TARGET = 13.0;") >= 6, "all configurations must target iOS 13+")
     require("PRODUCT_BUNDLE_IDENTIFIER = com.garethpaul.UpDown;" in project, "app bundle identifier must be explicit")
     require("PRODUCT_BUNDLE_IDENTIFIER = com.garethpaul.UpDownTests;" in project, "test bundle identifier must be explicit")
+    require("ENABLE_TESTABILITY = YES;" in project, "Debug app builds must support @testable XCTest imports")
     require("/Users/" not in project, "Xcode project must not contain developer-specific absolute paths")
     require("UpDownTests.xctest" in scheme and 'skipped = "NO"' in scheme, "shared scheme must run UpDownTests")
 
