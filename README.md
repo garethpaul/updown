@@ -42,14 +42,16 @@ the build and offline prompt behavior but cannot reproduce real tilting.
 - `make build` builds the simulator app without code signing.
 - `make check` runs portable contracts everywhere and real XCTest on macOS.
 
-GitHub Actions runs static contracts on Python 3.10, 3.12, and 3.14 and runs the full
-Xcode test scheme on macOS 15. Workflow permissions are read-only, superseded
-runs are cancelled, and action revisions are pinned to immutable commits.
+GitHub Actions runs static contracts on Python 3.10, 3.12, and 3.14 on Ubuntu
+24.04 and runs the full Xcode test scheme on macOS 15. Workflow permissions are
+read-only, superseded runs are cancelled, and action revisions are pinned to
+immutable commits.
 
 ## Tested Behavior
 
-`PromptProviderTests` verifies deterministic prompt selection, empty-source
-handling, out-of-range selector handling, and the bundled prompt inventory.
+`PromptProviderTests` verifies deterministic prompt selection, immediate-repeat
+prevention, single-item and empty-source behavior, out-of-range selector
+handling, and the bundled prompt inventory.
 Static contracts additionally require motion callbacks to avoid retaining the
 view controller, prevent duplicate subscriptions, and stop when the view leaves
 the screen.
@@ -76,6 +78,8 @@ the screen.
 - `scripts/check_ios_contracts.py` provides portable repository contracts.
 - `docs/plans`, `CHANGES.md`, `SECURITY.md`, and `VISION.md` record maintenance
   decisions and project scope.
+- `docs/plans/2026-06-10-no-immediate-prompt-repeat.md` records the completed
+  prompt repeat-prevention change.
 
 ## Contributing
 

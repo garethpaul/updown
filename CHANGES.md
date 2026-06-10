@@ -2,6 +2,10 @@
 
 ## 2026-06-10
 
+- Prevented consecutive duplicate prompts while preserving empty, single-item,
+  and invalid-selector behavior with deterministic XCTest coverage.
+- Made local Make and test-script execution root-independent and fixed the
+  static CI job to Ubuntu 24.04.
 - Migrated the project to Swift 5, Xcode 16, and an iOS 13 deployment target
   with explicit app/test bundle identifiers and a shared test scheme.
 - Replaced the dead remote prompt endpoint with a bundled offline prompt
