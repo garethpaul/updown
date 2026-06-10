@@ -1,19 +1,26 @@
-.PHONY: build check lint test verify
+.PHONY: build check lint static test verify
 
 PYTHON ?= python3
 
-lint:
+static:
 	$(PYTHON) scripts/check_ios_contracts.py
 
-test: lint
+lint: static
+
+test:
+	@if command -v xcodebuild >/dev/null 2>&1; then \
+		xcodebuild -project UpDown.xcodeproj -scheme UpDown -destination 'platform=iOS Simulator,name=iPhone 16 Pro' CODE_SIGNING_ALLOWED=NO test; \
+	else \
+		echo "iOS tests skipped: xcodebuild is not available on this host."; \
+	fi
 
 build:
 	@if command -v xcodebuild >/dev/null 2>&1; then \
-		xcodebuild -project UpDown.xcodeproj -target UpDown -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build; \
+		xcodebuild -project UpDown.xcodeproj -scheme UpDown -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build; \
 	else \
 		echo "iOS build skipped: xcodebuild is not available on this host."; \
 	fi
 
-verify: lint test build
+verify: static test
 
 check: verify

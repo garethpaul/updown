@@ -10,9 +10,6 @@
 - `scripts` - baseline checks and helper scripts
 - `docs` - plans, notes, and generated README assets
 - `UpDown.xcodeproj` - Xcode project
-- `Crashlytics.framework` - repository source or sample assets
-- `Fabric.framework` - repository source or sample assets
-- `MoPub.framework` - repository source or sample assets
 - `plans` - repository source or sample assets
 - `UpDown` - repository source or sample assets
 - `UpDownTests` - repository source or sample assets
@@ -30,8 +27,8 @@
 
 ## Coding conventions
 
-- Language mix noted in the README: C/C++ headers (29), Swift (5), JavaScript (1).
-- Preserve legacy Xcode project settings and signing assumptions unless the change is explicitly about modernization.
+- The application and tests use Swift 5 and support iOS 13 or later.
+- Keep the shared `UpDown` scheme, explicit bundle identifiers, and simulator-safe no-signing build intact.
 
 ## Testing guidance
 
@@ -48,9 +45,9 @@
 
 ## Safety and gotchas
 
-- Set `FABRIC_API_KEY` and `FABRIC_BUILD_SECRET` locally when Fabric dSYM upload is needed during Xcode builds. The build phase skips that upload when the variables are absent.
-- Replace `InterstitialAdUnitID` locally before testing MoPub interstitials. The checked-in placeholder does not load or present ads.
-- This looks like an Apple platform project or sample. Xcode, Swift, CocoaPods, and deployment target versions may need to match the original project era.
+- Prompt selection is intentionally offline; do not add a network dependency without an explicit product requirement and deterministic fallback.
+- Do not reintroduce retired advertising, analytics, or crash-reporting binary frameworks.
+- CoreMotion behavior must still be verified on a physical device when thresholds or lifecycle behavior change.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 - See `docs/plans/2026-06-08-updown-baseline.md` for the current static verification baseline.

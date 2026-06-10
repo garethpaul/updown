@@ -1,150 +1,69 @@
-//
-//  ViewController.swift
-//
-
-import UIKit
 import CoreMotion
-import MoPub
+import UIKit
 
-// TODO: Replace this placeholder with your personal ad unit id.
-let InterstitialAdUnitID = "YOUR_AD_UNIT_ID"
+final class ViewController: UIViewController {
+    private let motionManager = CMMotionManager()
+    private let promptProvider = PromptProvider()
+    private var playing = false
 
-class ViewController: UIViewController, MPInterstitialAdControllerDelegate {
-
-    // Setup the Motion Manager
-    var manager = CMMotionManager()
-
-    // Playing bool to be set when someone is playing the game
-    var playing = false
-    var fetchingPrompt = false
-    var promptRequestID = 0
-
-    var interstitial: MPInterstitialAdController = MPInterstitialAdController(forAdUnitId: InterstitialAdUnitID)
-
-    // IBOutlet
-    @IBOutlet var gameText: UILabel!
-    @IBOutlet var spinner: UIActivityIndicatorView!
+    @IBOutlet private weak var gameText: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Show the interstitial ad unit
-        if self.interstitialAdUnitConfigured() {
-            self.interstitial.delegate = self
-            self.interstitial.loadAd()
-        }
-
-        // Begin the app
-        begin()
+        gameText.text = "Tilt the phone up for a word"
     }
 
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        begin()
+        beginMotionUpdates()
     }
 
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        manager.stopDeviceMotionUpdates()
-        self.promptRequestID += 1
-        fetchingPrompt = false
+        motionManager.stopDeviceMotionUpdates()
         playing = false
     }
 
-    func begin(){
-        if manager.deviceMotionActive {
+    private func beginMotionUpdates() {
+        guard motionManager.isDeviceMotionAvailable,
+              !motionManager.isDeviceMotionActive else {
             return
         }
 
-        // If there is a motion manager available
-        if manager.deviceMotionAvailable {
+        motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, _ in
+            guard let self, let attitude = motion?.attitude else {
+                return
+            }
 
-            // Start the device motion updates
+            let magnitude = sqrt(
+                attitude.roll * attitude.roll
+                    + attitude.yaw * attitude.yaw
+                    + attitude.pitch * attitude.pitch
+            )
 
-            manager.startDeviceMotionUpdatesToQueue(NSOperationQueue.mainQueue()) {
-                (motion, error) in
-
-                if let currentMotion = motion {
-
-                    // Calculate the magnitude of the change
-                    let magnitude = sqrt(pow(currentMotion.attitude.roll, 2) + pow(currentMotion.attitude.yaw, 2) + pow(currentMotion.attitude.pitch, 2))
-
-                    // Determine whether the player is playing via boolean
-                    let playing = self.playing
-
-                    // If the magnitude of change is above 1 or 2.6 (tried via testing changes)
-                    if magnitude >= 1 && magnitude <= 2.6 {
-
-                        // If not playing (begin playing)
-                        if (playing == false) {
-                            self.play()
-                        }
-
-                    } else {
-
-                        // If the "magnitude" - shows that the phone is down and user is playing stop playing
-                        if playing == true {
-                            self.stop()
-                        }
-                    }
+            if (1...2.6).contains(magnitude) {
+                if !playing {
+                    play()
                 }
+            } else if playing {
+                stop()
             }
         }
     }
 
-    func play(){
-        if self.fetchingPrompt {
+    private func play() {
+        guard let prompt = promptProvider.nextPrompt() else {
+            gameText.text = "No prompts available"
+            playing = false
             return
         }
-        self.fetchingPrompt = true
-        self.promptRequestID += 1
-        let requestID = self.promptRequestID
 
-        // Play the game
-        self.spinner.stopAnimating()
-        self.spinner.hidden = true
-
-        // Put a random string into the game
-        let url = URL()
-        url.get("https://garethpaul-app.appspot.com/api/updown", completed: { (succeeded: Bool, data: NSString) -> () in
-            dispatch_async(dispatch_get_main_queue()) {
-                if requestID != self.promptRequestID {
-                    return
-                }
-                self.fetchingPrompt = false
-                self.spinner.stopAnimating()
-                self.spinner.hidden = true
-                if succeeded && data.length > 0 {
-                    self.gameText.text = data as String
-                    self.playing = true
-                } else {
-                    self.gameText.text = "Prompt unavailable"
-                    self.playing = false
-                }
-                self.gameText.hidden = false;
-            }
-        })
+        gameText.text = prompt
+        playing = true
     }
 
-
-    func stop(){
-        self.playing = false
-        self.spinner.hidden = false
-        self.gameText.hidden = true
-        self.spinner.startAnimating()
+    private func stop() {
+        playing = false
+        gameText.text = "Tilt the phone up for a word"
     }
-
-    func interstitialAdUnitConfigured() -> Bool {
-        return InterstitialAdUnitID != "YOUR_AD_UNIT_ID"
-    }
-
-    // Present the ad only after it has loaded and is ready
-    func interstitialDidLoadAd(interstitial: MPInterstitialAdController) {
-        if (self.interstitialAdUnitConfigured() && interstitial.ready) {
-            interstitial.showFromViewController(self)
-        }
-    }
-
-
-
 }
