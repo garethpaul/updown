@@ -52,6 +52,9 @@ GitHub Actions runs static contracts on Python 3.10, 3.12, and 3.14 on Ubuntu
 24.04 and runs the full Xcode test scheme on macOS 15. Workflow permissions are
 read-only, superseded runs are cancelled, and action revisions are pinned to
 immutable commits. Neither checkout step persists the workflow credential.
+CodeQL analyzes actions and Python without a build, and analyzes Swift through
+an explicit unsigned single-architecture `UpDown` app-target build; XCTest
+remains in the canonical macOS Check job.
 
 ## Tested Behavior
 
@@ -90,6 +93,8 @@ fluctuations while playing, and stop when the view leaves the screen.
   motion boundary stabilization change.
 - `docs/plans/2026-06-12-hosted-checkout-credentials.md` records the
   credential-free static and iOS checkout contract.
+- `docs/plans/2026-06-12-codeql-manual-swift-build.md` records the explicit
+  Swift analysis target and bounded advanced CodeQL workflow.
 
 ## Contributing
 

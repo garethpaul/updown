@@ -5,6 +5,8 @@
 - Disabled checkout credential persistence in both hosted jobs and bound the
   fail-closed contract to each pinned checkout step.
 - Ignored Python bytecode caches produced by local contract compilation.
+- Replaced opaque default Swift CodeQL autobuild with a pinned advanced
+  workflow that explicitly builds the unsigned `UpDown` app target.
 
 ## 2026-06-10
 
