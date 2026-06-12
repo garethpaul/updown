@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-12
+
+- Disabled checkout credential persistence in both hosted jobs and bound the
+  fail-closed contract to each pinned checkout step.
+- Ignored Python bytecode caches produced by local contract compilation.
+
 ## 2026-06-10
 
 - Added a testable motion hysteresis gate so small sensor fluctuations at the

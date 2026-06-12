@@ -51,7 +51,7 @@ the build and offline prompt behavior but cannot reproduce real tilting.
 GitHub Actions runs static contracts on Python 3.10, 3.12, and 3.14 on Ubuntu
 24.04 and runs the full Xcode test scheme on macOS 15. Workflow permissions are
 read-only, superseded runs are cancelled, and action revisions are pinned to
-immutable commits.
+immutable commits. Neither checkout step persists the workflow credential.
 
 ## Tested Behavior
 
@@ -88,6 +88,8 @@ fluctuations while playing, and stop when the view leaves the screen.
   prompt repeat-prevention change.
 - `docs/plans/2026-06-10-motion-threshold-hysteresis.md` records the completed
   motion boundary stabilization change.
+- `docs/plans/2026-06-12-hosted-checkout-credentials.md` records the
+  credential-free static and iOS checkout contract.
 
 ## Contributing
 
