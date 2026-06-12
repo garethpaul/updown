@@ -15,6 +15,8 @@ MODERNIZATION_PLAN = DOCS_PLANS / "2026-06-10-swift5-offline-modernization.md"
 HOSTED_VERIFICATION_PLAN = DOCS_PLANS / "2026-06-10-hosted-static-verification.md"
 NO_REPEAT_PLAN = DOCS_PLANS / "2026-06-10-no-immediate-prompt-repeat.md"
 MOTION_HYSTERESIS_PLAN = DOCS_PLANS / "2026-06-10-motion-threshold-hysteresis.md"
+CHECKOUT_CREDENTIALS_PLAN = DOCS_PLANS / "2026-06-12-hosted-checkout-credentials.md"
+CODEQL_PLAN = DOCS_PLANS / "2026-06-12-codeql-manual-swift-build.md"
 RETIRED_SDKS = ("Crashlytics.framework", "Fabric.framework", "MoPub.framework")
 
 
@@ -32,12 +34,38 @@ def require(condition, message):
         raise AssertionError(message)
 
 
+def workflow_step_blocks(workflow, action):
+    lines = workflow.splitlines()
+    blocks = []
+    prefix = "- name: Check out repository"
+
+    for index, line in enumerate(lines):
+        if line.strip() != prefix:
+            continue
+        indentation = len(line) - len(line.lstrip())
+        block = [line]
+        for following_line in lines[index + 1 :]:
+            following_indentation = len(following_line) - len(following_line.lstrip())
+            if following_line.strip() and following_indentation <= indentation:
+                break
+            block.append(following_line)
+        text = "\n".join(block)
+        if action in text:
+            blocks.append(text)
+
+    return blocks
+
+
 def load_plist(relative_path):
     with (ROOT / relative_path).open("rb") as plist_file:
         return plistlib.load(plist_file)
 
 
 def check_project_files_parse():
+    gitignore = read_text(".gitignore")
+    require("__pycache__/" in gitignore, "Python bytecode cache directories must be ignored")
+    require("*.py[cod]" in gitignore, "Python bytecode files must be ignored")
+
     project = read_text("UpDown.xcodeproj/project.pbxproj")
     plist_paths = sorted(set(re.findall(r"INFOPLIST_FILE = ([^;]+);", project)))
     require(plist_paths, "project must reference Info.plist files")
@@ -136,6 +164,7 @@ def check_motion_lifecycle_contracts():
 
 def check_hosted_verification():
     workflow = read_text(".github/workflows/check.yml")
+    checkout_action = "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10"
     for contract in (
         "pull_request:",
         "workflow_dispatch:",
@@ -146,12 +175,21 @@ def check_hosted_verification():
         "runs-on: macos-15",
         "timeout-minutes: 15",
         'python-version: ["3.10", "3.12", "3.14"]',
-        "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+        checkout_action,
+        "persist-credentials: false",
         "run: make static",
         "run: make check",
     ):
         require(contract in workflow, f"hosted verification must include {contract!r}")
     require("@v" not in workflow, "hosted actions must use immutable commits")
+    checkout_blocks = workflow_step_blocks(workflow, checkout_action)
+    require(len(checkout_blocks) == 2, "both hosted jobs must define one pinned checkout step")
+    require(
+        all("\n        with:\n          persist-credentials: false" in block for block in checkout_blocks),
+        "each checkout step must disable credential persistence in its own with block",
+    )
+    require(workflow.count("persist-credentials:") == 2, "credential persistence must be configured exactly twice")
+    require("persist-credentials: true" not in workflow, "hosted checkout credentials must not persist")
     require("ubuntu-latest" not in workflow, "hosted static verification must use a fixed Ubuntu runner")
     require("group: check-${{ github.workflow }}-${{ github.ref }}" in workflow, "workflow concurrency must include workflow and ref")
 
@@ -172,6 +210,40 @@ def check_hosted_verification():
     require("Designed for [iPad,iPhone]" in test_script, "iOS tests must retain an Apple Silicon fallback destination")
 
 
+def check_codeql_verification():
+    workflow = read_text(".github/workflows/codeql.yml")
+    for contract in (
+        "push:\n    branches:\n      - master",
+        "pull_request:",
+        "schedule:",
+        "workflow_dispatch:",
+        "permissions:\n  contents: read\n  security-events: write",
+        "group: codeql-${{ github.workflow }}-${{ github.ref }}",
+        "runs-on: ubuntu-24.04",
+        "runs-on: macos-15",
+        "timeout-minutes: 10",
+        "timeout-minutes: 25",
+        "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+        "github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e",
+        "github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e",
+        "persist-credentials: false",
+        "languages: swift",
+        "build-mode: manual",
+        "-project UpDown.xcodeproj",
+        "-sdk iphonesimulator",
+        "ARCHS=arm64",
+        "ONLY_ACTIVE_ARCH=YES",
+        "CODE_SIGNING_ALLOWED=NO",
+    ):
+        require(contract in workflow, f"CodeQL verification must include {contract!r}")
+    require("\n          -target UpDown\n" in workflow, "Swift CodeQL must build the exact UpDown app target")
+    require("autobuild" not in workflow, "Swift CodeQL must use the explicit app-target build")
+    require("@v" not in workflow, "CodeQL actions must use immutable commits")
+    require(workflow.count("persist-credentials:") == 2, "both CodeQL checkout steps must configure credentials")
+    require("persist-credentials: true" not in workflow, "CodeQL checkout credentials must not persist")
+    require(workflow.count("timeout-minutes: 25") == 1, "Swift CodeQL must retain one 25-minute bound")
+
+
 def check_docs_plans():
     require(DOCS_PLANS.is_dir(), "docs/plans must exist")
     plans = sorted(DOCS_PLANS.glob("*.md"))
@@ -179,6 +251,8 @@ def check_docs_plans():
     require(HOSTED_VERIFICATION_PLAN in plans, f"{HOSTED_VERIFICATION_PLAN.relative_to(ROOT)} must be present")
     require(NO_REPEAT_PLAN in plans, f"{NO_REPEAT_PLAN.relative_to(ROOT)} must be present")
     require(MOTION_HYSTERESIS_PLAN in plans, f"{MOTION_HYSTERESIS_PLAN.relative_to(ROOT)} must be present")
+    require(CHECKOUT_CREDENTIALS_PLAN in plans, f"{CHECKOUT_CREDENTIALS_PLAN.relative_to(ROOT)} must be present")
+    require(CODEQL_PLAN in plans, f"{CODEQL_PLAN.relative_to(ROOT)} must be present")
     for plan in plans:
         text = plan.read_text(encoding="utf-8")
         require("Status: Completed" in text, f"{plan.name} must be completed")
@@ -192,6 +266,7 @@ def main():
         check_offline_prompt_contracts,
         check_motion_lifecycle_contracts,
         check_hosted_verification,
+        check_codeql_verification,
         check_docs_plans,
     )
     try:
