@@ -2,6 +2,12 @@
 
 ## 2026-06-10
 
+- Added a testable motion hysteresis gate so small sensor fluctuations at the
+  play thresholds do not stop, restart, and consume another prompt.
+- Prevented consecutive duplicate prompts while preserving empty, single-item,
+  and invalid-selector behavior with deterministic XCTest coverage.
+- Made local Make and test-script execution root-independent and fixed the
+  static CI job to Ubuntu 24.04.
 - Migrated the project to Swift 5, Xcode 16, and an iOS 13 deployment target
   with explicit app/test bundle identifiers and a shared test scheme.
 - Replaced the dead remote prompt endpoint with a bundled offline prompt
@@ -17,8 +23,8 @@
 
 ## 2026-06-10
 
-- Added least-privilege GitHub Actions static verification on Python 3.10 and
-  3.12 with immutable action pins and a bounded runtime.
+- Added least-privilege GitHub Actions static verification on Python 3.10,
+  3.12, and 3.14 with immutable action pins and a bounded runtime.
 - Extended the local iOS contract checker to enforce workflow triggers,
   permissions, action provenance, matrix, timeout, and command.
 - Documented that hosted CI covers portable contracts while Xcode and device

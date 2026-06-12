@@ -1,8 +1,27 @@
 import CoreMotion
 import UIKit
 
+struct MotionHysteresisGate {
+    private let startRange: ClosedRange<Double>
+    private let continuationRange: ClosedRange<Double>
+
+    init(
+        startRange: ClosedRange<Double> = 1.0...2.6,
+        continuationRange: ClosedRange<Double> = 0.9...2.7
+    ) {
+        self.startRange = startRange
+        self.continuationRange = continuationRange
+    }
+
+    func shouldPlay(magnitude: Double, currentlyPlaying: Bool) -> Bool {
+        let activeRange = currentlyPlaying ? continuationRange : startRange
+        return activeRange.contains(magnitude)
+    }
+}
+
 final class ViewController: UIViewController {
     private let motionManager = CMMotionManager()
+    private let motionGate = MotionHysteresisGate()
     private let promptProvider = PromptProvider()
     private var playing = false
 
@@ -41,7 +60,12 @@ final class ViewController: UIViewController {
                     + attitude.pitch * attitude.pitch
             )
 
-            if (1...2.6).contains(magnitude) {
+            let shouldPlay = motionGate.shouldPlay(
+                magnitude: magnitude,
+                currentlyPlaying: playing
+            )
+
+            if shouldPlay {
                 if !playing {
                     play()
                 }

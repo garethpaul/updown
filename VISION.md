@@ -15,9 +15,11 @@ Priority:
 
 - Preserve the motion-triggered play/stop flow
 - Keep prompt selection offline and deterministic under test
+- Avoid immediately repeating a prompt when alternatives are available
 - Keep advertising, analytics, and crash-reporting SDKs out of the app
 - Keep the Swift 5 / iOS 13+ project reproducible with a shared test scheme
 - Treat missing CoreMotion samples as non-crashing no-ops
+- Tolerate small sensor fluctuations at motion play-state boundaries
 - Stop CoreMotion updates when the game view is off screen
 - Keep motion play state as concrete local state, not an implicitly unwrapped
   optional

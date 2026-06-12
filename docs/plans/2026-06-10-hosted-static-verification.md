@@ -10,7 +10,8 @@ storyboard compilation, and simulator link step unverified.
 
 ## Plan
 
-1. Add least-privilege portable verification on Python 3.10 and 3.12.
+1. Add least-privilege portable verification on Python 3.10, 3.12, and 3.14,
+   with manual dispatch for maintenance checks.
 2. Pin third-party actions to verified immutable commits and bound runtime.
 3. Add a macOS 15 job that runs the shared Xcode test scheme through the same
    `make check` command developers use.

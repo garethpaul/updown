@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
 device_id="$({ xcrun simctl list devices available -j 2>/dev/null || printf '{"devices":{}}'; } | python3 -c '
 import json, sys
 devices = json.load(sys.stdin).get("devices", {})
