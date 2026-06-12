@@ -28,6 +28,9 @@ ambiguity to a security gate.
 - Ruby parsed both workflow files.
 - Isolated autobuild, mutable-action, target, permission, and timeout mutations
   were rejected by the portable checker.
-- Exact-head GitHub Actions functional and CodeQL verification.
+- At exact head `81bb80c8bd1130ed3d5f965ed5521ce040ee35bc`, functional
+  run `27425076431` passed and CodeQL run `27425076248` passed actions,
+  Python, and Swift analysis. The Swift job completed in 14m43s, including a
+  successful 13m04s instrumented app-target build, within the 25-minute bound.
 - `python3 -m py_compile scripts/check_ios_contracts.py` and
   `git diff --check` passed.
