@@ -17,6 +17,7 @@ NO_REPEAT_PLAN = DOCS_PLANS / "2026-06-10-no-immediate-prompt-repeat.md"
 MOTION_HYSTERESIS_PLAN = DOCS_PLANS / "2026-06-10-motion-threshold-hysteresis.md"
 CHECKOUT_CREDENTIALS_PLAN = DOCS_PLANS / "2026-06-12-hosted-checkout-credentials.md"
 CODEQL_PLAN = DOCS_PLANS / "2026-06-12-codeql-manual-swift-build.md"
+PROMPT_VALUE_REPEAT_PLAN = DOCS_PLANS / "2026-06-13-no-immediate-prompt-value-repeat.md"
 RETIRED_SDKS = ("Crashlytics.framework", "Fabric.framework", "MoPub.framework")
 
 
@@ -122,10 +123,13 @@ def check_offline_prompt_contracts():
     require(len(re.findall(r'^\s*".+",?$', prompts_match.group("body"), re.MULTILINE)) >= 20, "offline source must contain at least 20 prompts")
     require("guard !prompts.isEmpty" in provider, "empty prompt sources must fail safely")
     require("final class PromptProvider" in provider, "prompt provider must retain selection history")
-    require("private var previousIndex: Int?" in provider, "prompt provider must track the previous prompt")
-    require("prompts.count - 1" in provider, "prompt provider must select from alternatives after the first prompt")
-    require("candidate >= previousIndex" in provider, "prompt provider must remap selections around the previous prompt")
-    require("(0..<candidateCount).contains(candidate)" in provider, "injected indexes must be bounds checked")
+    require("private var previousPrompt: String?" in provider, "prompt provider must track the previous visible value")
+    require("prompts.filter { $0 != previous }" in provider, "prompt provider must exclude the previous visible value")
+    require("alternatives.isEmpty ? prompts : alternatives" in provider, "all-identical prompt sources must remain playable")
+    require("indexProvider(candidates.count)" in provider, "injected selection must use the eligible candidate count")
+    require("candidates.indices.contains(candidate)" in provider, "injected candidate indexes must be bounds checked")
+    require("previousPrompt = prompt" in provider, "prompt provider must remember the returned visible value")
+    require("Set(" not in provider, "eligible duplicate prompts must retain source weighting")
 
     for test_name in (
         "testReturnsPromptAtInjectedIndex",
@@ -133,6 +137,9 @@ def check_offline_prompt_contracts():
         "testInvalidInjectedIndexReturnsNil",
         "testConsecutiveSelectionsDoNotRepeatWhenAlternativesExist",
         "testSinglePromptCanBeSelectedRepeatedly",
+        "testDuplicatePromptValuesDoNotRepeatWhenAnotherValueExists",
+        "testEligibleDuplicateValuesRetainTheirSelectionWeight",
+        "testAllIdenticalPromptValuesRemainPlayable",
         "testDefaultPromptSourceContainsPlayableValues",
     ):
         require(test_name in tests, f"XCTest coverage is missing {test_name}")
@@ -253,6 +260,7 @@ def check_docs_plans():
     require(MOTION_HYSTERESIS_PLAN in plans, f"{MOTION_HYSTERESIS_PLAN.relative_to(ROOT)} must be present")
     require(CHECKOUT_CREDENTIALS_PLAN in plans, f"{CHECKOUT_CREDENTIALS_PLAN.relative_to(ROOT)} must be present")
     require(CODEQL_PLAN in plans, f"{CODEQL_PLAN.relative_to(ROOT)} must be present")
+    require(PROMPT_VALUE_REPEAT_PLAN in plans, f"{PROMPT_VALUE_REPEAT_PLAN.relative_to(ROOT)} must be present")
     for plan in plans:
         text = plan.read_text(encoding="utf-8")
         require("Status: Completed" in text, f"{plan.name} must be completed")
