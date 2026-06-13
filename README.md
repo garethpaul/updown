@@ -58,9 +58,10 @@ remains in the canonical macOS Check job.
 
 ## Tested Behavior
 
-XCTest verifies deterministic prompt selection, immediate-repeat prevention,
-single-item and empty-source behavior, out-of-range selector handling, the
-bundled prompt inventory, and motion threshold hysteresis.
+XCTest verifies deterministic prompt selection, immediate-repeat prevention by
+visible prompt value, duplicate weighting, all-identical, single-item and
+empty-source behavior, out-of-range selector handling, the bundled prompt
+inventory, and motion threshold hysteresis.
 Static contracts additionally require motion callbacks to avoid retaining the
 view controller, prevent duplicate subscriptions, tolerate small threshold
 fluctuations while playing, and stop when the view leaves the screen.
@@ -89,6 +90,8 @@ fluctuations while playing, and stop when the view leaves the screen.
   decisions and project scope.
 - `docs/plans/2026-06-10-no-immediate-prompt-repeat.md` records the completed
   prompt repeat-prevention change.
+- `docs/plans/2026-06-13-no-immediate-prompt-value-repeat.md` records
+  duplicate-value repeat prevention and all-identical fallback coverage.
 - `docs/plans/2026-06-10-motion-threshold-hysteresis.md` records the completed
   motion boundary stabilization change.
 - `docs/plans/2026-06-12-hosted-checkout-credentials.md` records the

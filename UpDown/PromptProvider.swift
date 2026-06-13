@@ -3,7 +3,7 @@ final class PromptProvider {
 
     private let prompts: [String]
     private let indexProvider: IndexProvider
-    private var previousIndex: Int?
+    private var previousPrompt: String?
 
     init(
         prompts: [String] = PromptProvider.defaultPrompts,
@@ -18,23 +18,18 @@ final class PromptProvider {
             return nil
         }
 
-        let candidateCount = previousIndex == nil || prompts.count == 1
-            ? prompts.count
-            : prompts.count - 1
-        let candidate = indexProvider(candidateCount)
-        guard (0..<candidateCount).contains(candidate) else {
+        let alternatives = previousPrompt.map { previous in
+            prompts.filter { $0 != previous }
+        } ?? prompts
+        let candidates = alternatives.isEmpty ? prompts : alternatives
+        let candidate = indexProvider(candidates.count)
+        guard candidates.indices.contains(candidate) else {
             return nil
         }
 
-        let index: Int
-        if let previousIndex, prompts.count > 1, candidate >= previousIndex {
-            index = candidate + 1
-        } else {
-            index = candidate
-        }
-
-        previousIndex = index
-        return prompts[index]
+        let prompt = candidates[candidate]
+        previousPrompt = prompt
+        return prompt
     }
 
     static let defaultPrompts = [

@@ -16,6 +16,7 @@ Priority:
 - Preserve the motion-triggered play/stop flow
 - Keep prompt selection offline and deterministic under test
 - Avoid immediately repeating a prompt when alternatives are available
+- Treat duplicate prompt strings as the same visible clue for repeat prevention
 - Keep advertising, analytics, and crash-reporting SDKs out of the app
 - Keep the Swift 5 / iOS 13+ project reproducible with a shared test scheme
 - Treat missing CoreMotion samples as non-crashing no-ops

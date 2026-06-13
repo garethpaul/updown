@@ -32,6 +32,9 @@ Helpful reports include:
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
 - Review found database, model, query, or persistence-related code; changes in those areas should receive security-focused review before merge.
 - No primary dependency manifest was detected in the repository root. If dependencies are added later, include a manifest and prefer reproducible installation instructions.
+- Offline prompt history compares visible clue values without globally
+  deduplicating the source, preventing confusing immediate repeats while
+  preserving eligible duplicate weighting.
 
 ## Mobile Privacy Notes
 

@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-13
+
+- Prevented duplicate prompt strings at different indexes from appearing as
+  consecutive visible clues while preserving eligible duplicate weighting and
+  all-identical source behavior.
+
 ## 2026-06-12
 
 - Disabled checkout credential persistence in both hosted jobs and bound the

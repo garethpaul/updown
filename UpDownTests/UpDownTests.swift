@@ -45,6 +45,42 @@ final class PromptProviderTests: XCTestCase {
         XCTAssertEqual(provider.nextPrompt(), "only")
     }
 
+    func testDuplicatePromptValuesDoNotRepeatWhenAnotherValueExists() {
+        var selectionCounts: [Int] = []
+        let provider = PromptProvider(prompts: ["same", "same", "other"]) { count in
+            selectionCounts.append(count)
+            return 0
+        }
+
+        XCTAssertEqual(provider.nextPrompt(), "same")
+        XCTAssertEqual(provider.nextPrompt(), "other")
+        XCTAssertEqual(selectionCounts, [3, 1])
+    }
+
+    func testEligibleDuplicateValuesRetainTheirSelectionWeight() {
+        var selectionCounts: [Int] = []
+        let provider = PromptProvider(prompts: ["first", "weighted", "weighted", "other"]) { count in
+            selectionCounts.append(count)
+            return selectionCounts.count == 1 ? 0 : 1
+        }
+
+        XCTAssertEqual(provider.nextPrompt(), "first")
+        XCTAssertEqual(provider.nextPrompt(), "weighted")
+        XCTAssertEqual(selectionCounts, [4, 3])
+    }
+
+    func testAllIdenticalPromptValuesRemainPlayable() {
+        var selectionCounts: [Int] = []
+        let provider = PromptProvider(prompts: ["same", "same"]) { count in
+            selectionCounts.append(count)
+            return 1
+        }
+
+        XCTAssertEqual(provider.nextPrompt(), "same")
+        XCTAssertEqual(provider.nextPrompt(), "same")
+        XCTAssertEqual(selectionCounts, [2, 2])
+    }
+
     func testDefaultPromptSourceContainsPlayableValues() {
         XCTAssertGreaterThanOrEqual(PromptProvider.defaultPrompts.count, 20)
         XCTAssertTrue(PromptProvider.defaultPrompts.allSatisfy { !$0.isEmpty })
