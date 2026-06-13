@@ -20,6 +20,24 @@ final class PromptProviderTests: XCTestCase {
         XCTAssertNil(provider.nextPrompt())
     }
 
+    func testWhitespaceOnlyPromptListReturnsNilWithoutSelectingIndex() {
+        let provider = PromptProvider(prompts: ["", "   ", "\n\t"]) { _ in
+            XCTFail("Blank prompt sources must not request an index")
+            return 0
+        }
+
+        XCTAssertNil(provider.nextPrompt())
+    }
+
+    func testMixedPromptListFiltersBlankValuesWithoutRewritingClues() {
+        let provider = PromptProvider(prompts: ["", "   ", "  padded clue  ", "other"]) { count in
+            XCTAssertEqual(count, 2)
+            return 0
+        }
+
+        XCTAssertEqual(provider.nextPrompt(), "  padded clue  ")
+    }
+
     func testInvalidInjectedIndexReturnsNil() {
         let provider = PromptProvider(prompts: ["only"]) { _ in 1 }
 
@@ -83,7 +101,11 @@ final class PromptProviderTests: XCTestCase {
 
     func testDefaultPromptSourceContainsPlayableValues() {
         XCTAssertGreaterThanOrEqual(PromptProvider.defaultPrompts.count, 20)
-        XCTAssertTrue(PromptProvider.defaultPrompts.allSatisfy { !$0.isEmpty })
+        XCTAssertTrue(
+            PromptProvider.defaultPrompts.allSatisfy {
+                !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            }
+        )
     }
 }
 

@@ -19,6 +19,7 @@ CHECKOUT_CREDENTIALS_PLAN = DOCS_PLANS / "2026-06-12-hosted-checkout-credentials
 CODEQL_PLAN = DOCS_PLANS / "2026-06-12-codeql-manual-swift-build.md"
 PROMPT_VALUE_REPEAT_PLAN = DOCS_PLANS / "2026-06-13-no-immediate-prompt-value-repeat.md"
 MOTION_FAILURE_RESET_PLAN = DOCS_PLANS / "2026-06-13-motion-failure-reset.md"
+BLANK_PROMPT_FILTER_PLAN = DOCS_PLANS / "2026-06-13-blank-prompt-filter.md"
 RETIRED_SDKS = ("Crashlytics.framework", "Fabric.framework", "MoPub.framework")
 
 
@@ -131,10 +132,22 @@ def check_offline_prompt_contracts():
     require("candidates.indices.contains(candidate)" in provider, "injected candidate indexes must be bounds checked")
     require("previousPrompt = prompt" in provider, "prompt provider must remember the returned visible value")
     require("Set(" not in provider, "eligible duplicate prompts must retain source weighting")
+    require("import Foundation" in provider, "blank prompt filtering must import Foundation string utilities")
+    require(
+        "self.prompts = prompts.filter" in provider
+        and "trimmingCharacters(in: .whitespacesAndNewlines).isEmpty" in provider,
+        "prompt provider must filter empty and whitespace-only source values once during initialization",
+    )
+    require(
+        "self.prompts = prompts.map" not in provider,
+        "prompt provider must preserve accepted display strings instead of rewriting them",
+    )
 
     for test_name in (
         "testReturnsPromptAtInjectedIndex",
         "testEmptyPromptListReturnsNilWithoutSelectingIndex",
+        "testWhitespaceOnlyPromptListReturnsNilWithoutSelectingIndex",
+        "testMixedPromptListFiltersBlankValuesWithoutRewritingClues",
         "testInvalidInjectedIndexReturnsNil",
         "testConsecutiveSelectionsDoNotRepeatWhenAlternativesExist",
         "testSinglePromptCanBeSelectedRepeatedly",
@@ -144,6 +157,44 @@ def check_offline_prompt_contracts():
         "testDefaultPromptSourceContainsPlayableValues",
     ):
         require(test_name in tests, f"XCTest coverage is missing {test_name}")
+    require(
+        'XCTAssertEqual(provider.nextPrompt(), "  padded clue  ")' in tests,
+        "XCTest must prove accepted prompt display strings are not trimmed",
+    )
+    whitespace_test = re.search(
+        r"func testWhitespaceOnlyPromptListReturnsNilWithoutSelectingIndex\(\) \{(?P<body>.*?)\n    \}",
+        tests,
+        re.DOTALL,
+    )
+    require(
+        whitespace_test is not None
+        and "XCTFail" in whitespace_test.group("body")
+        and "XCTAssertNil(provider.nextPrompt())" in whitespace_test.group("body"),
+        "XCTest must prove all-blank sources return nil without selecting an index",
+    )
+    mixed_test = re.search(
+        r"func testMixedPromptListFiltersBlankValuesWithoutRewritingClues\(\) \{(?P<body>.*?)\n    \}",
+        tests,
+        re.DOTALL,
+    )
+    require(
+        mixed_test is not None and "XCTAssertEqual(count, 2)" in mixed_test.group("body"),
+        "XCTest must prove mixed sources expose only nonblank candidates",
+    )
+    require(
+        "PromptProvider.defaultPrompts.allSatisfy" in tests
+        and "trimmingCharacters(in: .whitespacesAndNewlines).isEmpty" in tests,
+        "XCTest must reject whitespace-only values in the default prompt inventory",
+    )
+
+    documentation = {
+        "README.md": "blank and whitespace-only prompt values",
+        "SECURITY.md": "Blank offline prompt values",
+        "VISION.md": "Reject blank offline prompt values",
+        "CHANGES.md": "Filtered blank and whitespace-only offline prompts",
+    }
+    for relative_path, phrase in documentation.items():
+        require(phrase in read_text(relative_path), f"{relative_path} must document blank prompt filtering")
 
 
 def check_motion_lifecycle_contracts():
@@ -300,6 +351,7 @@ def check_docs_plans():
     require(CODEQL_PLAN in plans, f"{CODEQL_PLAN.relative_to(ROOT)} must be present")
     require(PROMPT_VALUE_REPEAT_PLAN in plans, f"{PROMPT_VALUE_REPEAT_PLAN.relative_to(ROOT)} must be present")
     require(MOTION_FAILURE_RESET_PLAN in plans, f"{MOTION_FAILURE_RESET_PLAN.relative_to(ROOT)} must be present")
+    require(BLANK_PROMPT_FILTER_PLAN in plans, f"{BLANK_PROMPT_FILTER_PLAN.relative_to(ROOT)} must be present")
     for plan in plans:
         text = plan.read_text(encoding="utf-8")
         require("Status: Completed" in text, f"{plan.name} must be completed")

@@ -6,7 +6,7 @@ date: 2026-06-13
 
 # Filter Blank Offline Prompts
 
-## Status: Planned
+## Status: Completed
 
 ## Context
 
@@ -57,16 +57,26 @@ provider boundary.
 
 ## Verification
 
-- Run the focused prompt contracts, then local and external-working-directory
-  `make check` under explicit timeouts.
-- Reject hostile mutations for missing filtering, storing trimmed values,
-  selector calls on all-blank sources, mixed-source candidate counts, default
-  inventory drift, documentation removal, and stale plan status.
-- Validate Python syntax, workflow YAML, Xcode project/XML/JSON resources,
-  intended paths, generated artifacts, whitespace, conflict markers, and
-  changed-line secret patterns.
-- Report local XCTest as unavailable on this Linux host; rely on the exact-head
-  hosted iOS job for native compilation and test execution.
+- The focused offline prompt contract passed after implementation.
+- The pre-completion portable gate passed all seven non-plan contract groups.
+- Fifteen hostile mutations covering filter removal, empty-only filtering,
+  display-value rewriting, missing or weakened XCTest assertions,
+  documentation drift, and stale plan status were rejected.
+- Python checker syntax validation passed.
+- Final local and external-working-directory `make check` runs are executed
+  after this completed-plan record is written so the canonical plan contract
+  validates the shipped state.
+- Local XCTest truthfully skipped because `xcodebuild` is unavailable on this
+  Linux host; exact-head hosted iOS validation is required before completion.
+
+## Work Completed
+
+- Filtered empty and whitespace-only values once during provider
+  initialization using Foundation whitespace/newline classification.
+- Preserved each accepted clue string unchanged, including intentional leading
+  or trailing spaces, and retained duplicate weighting and repeat history.
+- Added deterministic all-blank, mixed-source, display-preservation, and
+  strengthened default-inventory XCTest contracts.
 
 ## Scope Boundaries
 

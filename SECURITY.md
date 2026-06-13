@@ -35,6 +35,8 @@ Helpful reports include:
 - Offline prompt history compares visible clue values without globally
   deduplicating the source, preventing confusing immediate repeats while
   preserving eligible duplicate weighting.
+- Blank offline prompt values are removed before selection so malformed local
+  inventory cannot render an empty clue or consume prompt history.
 - Core Motion errors and missing attitude samples reset an active prompt to the
   idle state without retaining or persisting motion data.
 

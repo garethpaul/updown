@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Filtered blank and whitespace-only offline prompts at provider initialization
+  while preserving accepted clue text and duplicate weighting.
 - Reset active play to the existing idle prompt when Core Motion reports an
   error or omits an attitude sample, while leaving idle state unchanged.
 - Added deterministic XCTest and portable contracts for unavailable motion

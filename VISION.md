@@ -17,6 +17,7 @@ Priority:
 - Keep prompt selection offline and deterministic under test
 - Avoid immediately repeating a prompt when alternatives are available
 - Treat duplicate prompt strings as the same visible clue for repeat prevention
+- Reject blank offline prompt values without rewriting accepted clue text
 - Keep advertising, analytics, and crash-reporting SDKs out of the app
 - Keep the Swift 5 / iOS 13+ project reproducible with a shared test scheme
 - Reset active play safely when CoreMotion reports an error or missing sample

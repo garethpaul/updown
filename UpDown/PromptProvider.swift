@@ -1,3 +1,5 @@
+import Foundation
+
 final class PromptProvider {
     typealias IndexProvider = (Int) -> Int
 
@@ -9,7 +11,9 @@ final class PromptProvider {
         prompts: [String] = PromptProvider.defaultPrompts,
         indexProvider: @escaping IndexProvider = { Int.random(in: 0..<$0) }
     ) {
-        self.prompts = prompts
+        self.prompts = prompts.filter {
+            !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
         self.indexProvider = indexProvider
     }
 

@@ -59,10 +59,10 @@ remains in the canonical macOS Check job.
 ## Tested Behavior
 
 XCTest verifies deterministic prompt selection, immediate-repeat prevention by
-visible prompt value, duplicate weighting, all-identical, single-item and
-empty-source behavior, out-of-range selector handling, the bundled prompt
-inventory, motion threshold hysteresis, and active-to-idle reset decisions for
-unavailable motion samples.
+visible prompt value, duplicate weighting, all-identical, single-item, empty,
+and blank-source behavior, mixed-source filtering without display rewriting,
+out-of-range selector handling, the bundled prompt inventory, motion threshold
+hysteresis, and active-to-idle reset decisions for unavailable motion samples.
 Static contracts additionally require motion callbacks to avoid retaining the
 view controller, prevent duplicate subscriptions, tolerate small threshold
 fluctuations while playing, reset an active prompt after a motion error or
@@ -71,6 +71,8 @@ missing attitude, and stop when the view leaves the screen.
 ## Privacy and Security
 
 - Prompt selection is local and does not contact a server.
+- The provider removes blank and whitespace-only prompt values before
+  selection while preserving accepted clue text unchanged.
 - The app does not contain ad, analytics, or crash-reporting SDKs.
 - Motion data is processed in memory only while the game view is visible.
 - No credentials, API keys, or developer-specific build paths are required.
@@ -94,6 +96,8 @@ missing attitude, and stop when the view leaves the screen.
   prompt repeat-prevention change.
 - `docs/plans/2026-06-13-no-immediate-prompt-value-repeat.md` records
   duplicate-value repeat prevention and all-identical fallback coverage.
+- `docs/plans/2026-06-13-blank-prompt-filter.md` records fail-closed blank
+  prompt filtering and original display-value preservation.
 - `docs/plans/2026-06-10-motion-threshold-hysteresis.md` records the completed
   motion boundary stabilization change.
 - `docs/plans/2026-06-12-hosted-checkout-credentials.md` records the
