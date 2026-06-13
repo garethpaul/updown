@@ -2,6 +2,10 @@
 
 ## 2026-06-13
 
+- Reset active play to the existing idle prompt when Core Motion reports an
+  error or omits an attitude sample, while leaving idle state unchanged.
+- Added deterministic XCTest and portable contracts for unavailable motion
+  samples without changing valid-sample hysteresis thresholds.
 - Prevented duplicate prompt strings at different indexes from appearing as
   consecutive visible clues while preserving eligible duplicate weighting and
   all-identical source behavior.

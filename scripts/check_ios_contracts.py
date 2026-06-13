@@ -18,6 +18,7 @@ MOTION_HYSTERESIS_PLAN = DOCS_PLANS / "2026-06-10-motion-threshold-hysteresis.md
 CHECKOUT_CREDENTIALS_PLAN = DOCS_PLANS / "2026-06-12-hosted-checkout-credentials.md"
 CODEQL_PLAN = DOCS_PLANS / "2026-06-12-codeql-manual-swift-build.md"
 PROMPT_VALUE_REPEAT_PLAN = DOCS_PLANS / "2026-06-13-no-immediate-prompt-value-repeat.md"
+MOTION_FAILURE_RESET_PLAN = DOCS_PLANS / "2026-06-13-motion-failure-reset.md"
 RETIRED_SDKS = ("Crashlytics.framework", "Fabric.framework", "MoPub.framework")
 
 
@@ -149,6 +150,10 @@ def check_motion_lifecycle_contracts():
     source = read_text("UpDown/ViewController.swift")
     tests = read_text("UpDownTests/UpDownTests.swift")
     require("[weak self]" in source, "motion callback must not retain the view controller")
+    require(
+        "startDeviceMotionUpdates(to: .main) { [weak self] motion, error in" in source,
+        "motion callback must capture the delivery error for fail-safe handling",
+    )
     require("motionManager.isDeviceMotionAvailable" in source, "motion availability must be checked")
     require("!motionManager.isDeviceMotionActive" in source, "duplicate motion subscriptions must be prevented")
     require("motionManager.stopDeviceMotionUpdates()" in source, "motion updates must stop off screen")
@@ -160,11 +165,44 @@ def check_motion_lifecycle_contracts():
     require("continuationRange: ClosedRange<Double> = 0.9...2.7" in source, "motion continuation range must tolerate boundary noise")
     require("currentlyPlaying ? continuationRange : startRange" in source, "motion gate must choose thresholds from current play state")
     require("motionGate.shouldPlay(" in source, "motion callback must use the hysteresis gate")
+    require(
+        "func shouldResetForUnavailableSample(currentlyPlaying: Bool) -> Bool" in source,
+        "motion failures must use a testable active-state reset decision",
+    )
+    require(
+        "guard error == nil, let attitude = motion?.attitude else" in source,
+        "motion callback must treat errors and missing attitudes as unavailable samples",
+    )
+    require(
+        "motionGate.shouldResetForUnavailableSample(currentlyPlaying: playing)" in source,
+        "motion callback must consult the unavailable-sample reset decision",
+    )
+    require(
+        "func shouldResetForUnavailableSample(currentlyPlaying: Bool) -> Bool {\n        currentlyPlaying\n    }" in source,
+        "unavailable samples must reset only an active game",
+    )
+    unavailable_guard = source[
+        source.index("guard error == nil, let attitude = motion?.attitude else") :
+        source.index("let magnitude = sqrt(")
+    ]
+    unavailable_contracts = (
+        "guard error == nil, let attitude = motion?.attitude else",
+        "if motionGate.shouldResetForUnavailableSample(currentlyPlaying: playing)",
+        "stop()",
+        "return",
+    )
+    unavailable_positions = [unavailable_guard.index(contract) for contract in unavailable_contracts]
+    require(
+        unavailable_positions == sorted(unavailable_positions),
+        "motion errors and missing samples must reset active play before returning",
+    )
     require("if (1...2.6).contains(magnitude)" not in source, "motion callback must not bypass hysteresis")
     for test_name in (
         "testStartsOnlyInsideStartRange",
         "testKeepsPlayingAcrossSmallBoundaryFluctuations",
         "testStopsOutsideContinuationRange",
+        "testUnavailableSampleResetsActivePlayState",
+        "testUnavailableSampleLeavesIdleStateUnchanged",
     ):
         require(test_name in tests, f"XCTest coverage is missing {test_name}")
 
@@ -261,6 +299,7 @@ def check_docs_plans():
     require(CHECKOUT_CREDENTIALS_PLAN in plans, f"{CHECKOUT_CREDENTIALS_PLAN.relative_to(ROOT)} must be present")
     require(CODEQL_PLAN in plans, f"{CODEQL_PLAN.relative_to(ROOT)} must be present")
     require(PROMPT_VALUE_REPEAT_PLAN in plans, f"{PROMPT_VALUE_REPEAT_PLAN.relative_to(ROOT)} must be present")
+    require(MOTION_FAILURE_RESET_PLAN in plans, f"{MOTION_FAILURE_RESET_PLAN.relative_to(ROOT)} must be present")
     for plan in plans:
         text = plan.read_text(encoding="utf-8")
         require("Status: Completed" in text, f"{plan.name} must be completed")

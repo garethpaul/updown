@@ -19,7 +19,7 @@ Priority:
 - Treat duplicate prompt strings as the same visible clue for repeat prevention
 - Keep advertising, analytics, and crash-reporting SDKs out of the app
 - Keep the Swift 5 / iOS 13+ project reproducible with a shared test scheme
-- Treat missing CoreMotion samples as non-crashing no-ops
+- Reset active play safely when CoreMotion reports an error or missing sample
 - Tolerate small sensor fluctuations at motion play-state boundaries
 - Stop CoreMotion updates when the game view is off screen
 - Keep motion play state as concrete local state, not an implicitly unwrapped

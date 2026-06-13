@@ -110,4 +110,16 @@ final class MotionHysteresisGateTests: XCTestCase {
         XCTAssertFalse(gate.shouldPlay(magnitude: 0.89, currentlyPlaying: true))
         XCTAssertFalse(gate.shouldPlay(magnitude: 2.71, currentlyPlaying: true))
     }
+
+    func testUnavailableSampleResetsActivePlayState() {
+        let gate = MotionHysteresisGate()
+
+        XCTAssertTrue(gate.shouldResetForUnavailableSample(currentlyPlaying: true))
+    }
+
+    func testUnavailableSampleLeavesIdleStateUnchanged() {
+        let gate = MotionHysteresisGate()
+
+        XCTAssertFalse(gate.shouldResetForUnavailableSample(currentlyPlaying: false))
+    }
 }
