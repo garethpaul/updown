@@ -35,6 +35,8 @@ Helpful reports include:
 - Offline prompt history compares visible clue values without globally
   deduplicating the source, preventing confusing immediate repeats while
   preserving eligible duplicate weighting.
+- Core Motion errors and missing attitude samples reset an active prompt to the
+  idle state without retaining or persisting motion data.
 
 ## Mobile Privacy Notes
 

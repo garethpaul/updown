@@ -17,6 +17,10 @@ struct MotionHysteresisGate {
         let activeRange = currentlyPlaying ? continuationRange : startRange
         return activeRange.contains(magnitude)
     }
+
+    func shouldResetForUnavailableSample(currentlyPlaying: Bool) -> Bool {
+        currentlyPlaying
+    }
 }
 
 final class ViewController: UIViewController {
@@ -49,8 +53,14 @@ final class ViewController: UIViewController {
             return
         }
 
-        motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, _ in
-            guard let self, let attitude = motion?.attitude else {
+        motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, error in
+            guard let self else {
+                return
+            }
+            guard error == nil, let attitude = motion?.attitude else {
+                if motionGate.shouldResetForUnavailableSample(currentlyPlaying: playing) {
+                    stop()
+                }
                 return
             }
 

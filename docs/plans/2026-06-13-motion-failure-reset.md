@@ -5,7 +5,7 @@ date: 2026-06-13
 
 # Reset Play State When Motion Delivery Fails
 
-## Status: In Progress
+## Status: Completed
 
 ## Context
 
@@ -34,9 +34,12 @@ transition.
 
 ## Verification
 
-- Focused motion tests and full `make check`
-- External-directory and space-containing-path portable checks
-- Hostile mutations for ignored errors, missing-sample handling, active reset,
-  idle stability, weak capture, and plan completion
-- Swift formatting/source review, workflow contracts, `git diff --check`,
-  generated-artifact, and focused secret review
+- `python3 -B -c '...check_motion_lifecycle_contracts()'` passed callback,
+  active-reset, idle-stability, weak-capture, and XCTest-presence contracts.
+- Full local, external-directory, and space-containing-path `make check` runs
+  passed all seven portable groups; native XCTest runs in hosted macOS CI.
+- Nine hostile mutations covering ignored errors, missing-sample handling,
+  active reset, idle stability, weak capture, removed XCTest cases, and stale
+  plan status were rejected.
+- Swift source review, workflow contracts, `git diff --check`, generated-
+  artifact, and focused secret reviews are included in final validation.

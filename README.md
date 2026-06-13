@@ -61,10 +61,12 @@ remains in the canonical macOS Check job.
 XCTest verifies deterministic prompt selection, immediate-repeat prevention by
 visible prompt value, duplicate weighting, all-identical, single-item and
 empty-source behavior, out-of-range selector handling, the bundled prompt
-inventory, and motion threshold hysteresis.
+inventory, motion threshold hysteresis, and active-to-idle reset decisions for
+unavailable motion samples.
 Static contracts additionally require motion callbacks to avoid retaining the
 view controller, prevent duplicate subscriptions, tolerate small threshold
-fluctuations while playing, and stop when the view leaves the screen.
+fluctuations while playing, reset an active prompt after a motion error or
+missing attitude, and stop when the view leaves the screen.
 
 ## Privacy and Security
 
