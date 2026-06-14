@@ -1,6 +1,6 @@
 # Protect the Make Repository Root from Overrides
 
-## Status: Planned
+## Status: Completed
 
 ## Context
 
@@ -30,3 +30,19 @@ reviewed checkout.
 - Do not alter Swift behavior, project settings, dependencies, workflows, or
   branch-protection requirements.
 - Do not merge or close stacked pull requests without owner authorization.
+
+## Work Completed
+
+- Protected the Makefile-derived root while preserving the Python override.
+- Added exact-line checker contracts and registered this completed plan.
+
+## Verification
+
+- Python compilation and the focused hosted-verification contract passed.
+- Local, external-directory, and hostile-root `make check` runs passed under
+  300-second timeouts with all seven portable groups; local XCTest correctly
+  remained unavailable on Linux.
+- Eight hostile root, checker, Python override, and plan-status mutations were
+  rejected.
+- Python syntax, workflow YAML, project XML/JSON/plist, SVG XML, intended-path,
+  artifact, `git diff --check`, and changed-line secret audits passed.
