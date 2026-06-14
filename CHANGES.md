@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-14
+
+- Added a pending physical-device checklist for exact motion entry,
+  continuation, reset, unavailable-sample, and view-lifecycle behavior without
+  claiming simulator or static checks as device evidence.
+
 ## 2026-06-13
 
 - Filtered blank and whitespace-only offline prompts at provider initialization

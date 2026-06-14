@@ -1,6 +1,6 @@
 # Motion Device Verification Checklist
 
-## Status: Planned
+## Status: Completed
 
 ## Context
 
@@ -31,11 +31,13 @@ truthfully unclaimed.
 
 ## Verification
 
-- focused static checklist and source contracts
-- repository and external-directory `make check`
-- hostile threshold, transition, lifecycle, status, documentation, suite,
-  roadmap, and plan-status mutations
-- final artifact, credential, exact-diff, and hosted verification audits
+- Focused static checklist and source contracts passed.
+- The repository and external-directory `make check` passed.
+- Eight hostile device-checklist mutations were rejected across threshold,
+  transition, lifecycle, status, documentation, suite, roadmap, and plan-status
+  contracts.
+- Final artifact, credential, exact-diff, and hosted verification audits remain
+  the shipping gate.
 
 ## Scope Boundary
 

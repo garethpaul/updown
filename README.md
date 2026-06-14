@@ -79,10 +79,32 @@ missing attitude, and stop when the view leaves the screen.
 
 ## Limitations
 
-- Motion thresholds still require physical-device verification.
+- Motion thresholds still require physical-device verification using the
+  checklist below; no completed device run is claimed yet.
 - The bundled prompt list is intentionally small and English-only.
 - The UI preserves the original single-screen prototype rather than adding
   scoring, categories, accessibility customization, or multiplayer state.
+
+## Physical-Device Motion Checklist
+
+Use an iPhone or iPad running iOS 13 or later. Record the device model, OS
+version, app commit, orientation, and result for each step.
+
+1. Start with the device outside magnitude `1.0...2.6`; the idle instruction
+   remains visible.
+2. Move into `1.0...2.6`; exactly one prompt appears.
+3. While playing, fluctuate within `0.9...2.7`, including just outside the
+   narrower entry range; the same prompt remains visible.
+4. Move outside `0.9...2.7`; the idle instruction returns.
+5. Repeat entry and exit several times; each entry consumes one prompt and no
+   transition flicker consumes an extra prompt.
+6. Interrupt motion availability while a prompt is active; an error or missing
+   sample returns the game to idle.
+7. Leave the game view while playing; updates stop and play state clears.
+   Return to the view and confirm one motion subscription resumes.
+
+This checklist is pending physical-device execution. Simulator and static
+results do not satisfy it.
 
 ## Repository Guide
 
@@ -104,6 +126,8 @@ missing attitude, and stop when the view leaves the screen.
   credential-free static and iOS checkout contract.
 - `docs/plans/2026-06-12-codeql-manual-swift-build.md` records the explicit
   Swift analysis target and bounded advanced CodeQL workflow.
+- `docs/plans/2026-06-14-motion-device-verification-checklist.md` records the
+  pending physical-device threshold and lifecycle checklist.
 
 ## Contributing
 

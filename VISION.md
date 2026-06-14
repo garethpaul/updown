@@ -25,10 +25,11 @@ Priority:
 - Stop CoreMotion updates when the game view is off screen
 - Keep motion play state as concrete local state, not an implicitly unwrapped
   optional
+- Keep physical-device threshold and lifecycle verification notes tied to the
+  exact source ranges without claiming an unexecuted device run
 
 Next priorities:
 
-- Add physical-device verification notes for motion thresholds
 - Expand prompt categories without adding network or tracking dependencies
 - Improve accessibility while preserving the one-screen game flow
 

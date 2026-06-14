@@ -21,6 +21,7 @@ PROMPT_VALUE_REPEAT_PLAN = DOCS_PLANS / "2026-06-13-no-immediate-prompt-value-re
 MOTION_FAILURE_RESET_PLAN = DOCS_PLANS / "2026-06-13-motion-failure-reset.md"
 BLANK_PROMPT_FILTER_PLAN = DOCS_PLANS / "2026-06-13-blank-prompt-filter.md"
 MAKE_ROOT_PROTECTION_PLAN = DOCS_PLANS / "2026-06-14-make-root-override-protection.md"
+MOTION_DEVICE_CHECKLIST_PLAN = DOCS_PLANS / "2026-06-14-motion-device-verification-checklist.md"
 RETIRED_SDKS = ("Crashlytics.framework", "Fabric.framework", "MoPub.framework")
 
 
@@ -249,6 +250,27 @@ def check_motion_lifecycle_contracts():
         "motion errors and missing samples must reset active play before returning",
     )
     require("if (1...2.6).contains(magnitude)" not in source, "motion callback must not bypass hysteresis")
+
+    readme = read_text("README.md")
+    for phrase in (
+        "Physical-Device Motion Checklist",
+        "outside magnitude `1.0...2.6`",
+        "within `0.9...2.7`",
+        "exactly one prompt appears",
+        "returns the game to idle",
+        "one motion subscription resumes",
+        "pending physical-device execution",
+        "docs/plans/2026-06-14-motion-device-verification-checklist.md",
+    ):
+        require(phrase in readme, f"README must document device verification contract: {phrase}")
+    require(
+        "Keep physical-device threshold and lifecycle verification notes" in read_text("VISION.md"),
+        "VISION must preserve the physical-device verification boundary",
+    )
+    require(
+        "pending physical-device checklist" in read_text("CHANGES.md"),
+        "CHANGES must record the pending physical-device checklist",
+    )
     for test_name in (
         "testStartsOnlyInsideStartRange",
         "testKeepsPlayingAcrossSmallBoundaryFluctuations",
@@ -356,6 +378,7 @@ def check_docs_plans():
     require(MOTION_FAILURE_RESET_PLAN in plans, f"{MOTION_FAILURE_RESET_PLAN.relative_to(ROOT)} must be present")
     require(BLANK_PROMPT_FILTER_PLAN in plans, f"{BLANK_PROMPT_FILTER_PLAN.relative_to(ROOT)} must be present")
     require(MAKE_ROOT_PROTECTION_PLAN in plans, f"{MAKE_ROOT_PROTECTION_PLAN.relative_to(ROOT)} must be present")
+    require(MOTION_DEVICE_CHECKLIST_PLAN in plans, f"{MOTION_DEVICE_CHECKLIST_PLAN.relative_to(ROOT)} must be present")
     for plan in plans:
         text = plan.read_text(encoding="utf-8")
         require("Status: Completed" in text, f"{plan.name} must be completed")
