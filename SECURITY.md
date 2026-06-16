@@ -39,6 +39,8 @@ Helpful reports include:
   inventory cannot render an empty clue or consume prompt history.
 - Core Motion errors and missing attitude samples reset an active prompt to the
   idle state without retaining or persisting motion data.
+- Queued callbacks from ended Core Motion sessions are rejected before they can
+  restore off-screen prompt or play state.
 
 ## Mobile Privacy Notes
 

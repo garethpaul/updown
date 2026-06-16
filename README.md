@@ -62,11 +62,14 @@ XCTest verifies deterministic prompt selection, immediate-repeat prevention by
 visible prompt value, duplicate weighting, all-identical, single-item, empty,
 and blank-source behavior, mixed-source filtering without display rewriting,
 out-of-range selector handling, the bundled prompt inventory, motion threshold
-hysteresis, and active-to-idle reset decisions for unavailable motion samples.
+hysteresis, active-to-idle reset decisions for unavailable motion samples, and
+motion-session generation acceptance and invalidation.
 Static contracts additionally require motion callbacks to avoid retaining the
 view controller, prevent duplicate subscriptions, tolerate small threshold
 fluctuations while playing, reset an active prompt after a motion error or
 missing attitude, and stop when the view leaves the screen.
+Queued callbacks from an ended motion session are ignored before they can
+update game state.
 
 ## Privacy and Security
 
@@ -101,7 +104,8 @@ version, app commit, orientation, and result for each step.
 6. Interrupt motion availability while a prompt is active; an error or missing
    sample returns the game to idle.
 7. Leave the game view while playing; updates stop and play state clears.
-   Return to the view and confirm one motion subscription resumes.
+   Confirm a queued callback cannot restore the prompt, then return to the view
+   and confirm one motion subscription resumes.
 
 This checklist is pending physical-device execution. Simulator and static
 results do not satisfy it.
@@ -128,6 +132,8 @@ results do not satisfy it.
   Swift analysis target and bounded advanced CodeQL workflow.
 - `docs/plans/2026-06-14-motion-device-verification-checklist.md` records the
   pending physical-device threshold and lifecycle checklist.
+- `docs/plans/2026-06-16-stale-motion-callback-guard.md` records generation
+  invalidation for queued callbacks from ended motion sessions.
 
 ## Contributing
 

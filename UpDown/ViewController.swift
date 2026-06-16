@@ -23,10 +23,28 @@ struct MotionHysteresisGate {
     }
 }
 
+struct MotionUpdateSession {
+    private(set) var generation = 0
+
+    mutating func begin() -> Int {
+        generation += 1
+        return generation
+    }
+
+    mutating func invalidate() {
+        generation += 1
+    }
+
+    func accepts(_ capturedGeneration: Int) -> Bool {
+        capturedGeneration == generation
+    }
+}
+
 final class ViewController: UIViewController {
     private let motionManager = CMMotionManager()
     private let motionGate = MotionHysteresisGate()
     private let promptProvider = PromptProvider()
+    private var motionUpdateSession = MotionUpdateSession()
     private var playing = false
 
     @IBOutlet private weak var gameText: UILabel!
@@ -43,6 +61,7 @@ final class ViewController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        motionUpdateSession.invalidate()
         motionManager.stopDeviceMotionUpdates()
         playing = false
     }
@@ -53,8 +72,12 @@ final class ViewController: UIViewController {
             return
         }
 
+        let motionGeneration = motionUpdateSession.begin()
         motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, error in
             guard let self else {
+                return
+            }
+            guard motionUpdateSession.accepts(motionGeneration) else {
                 return
             }
             guard error == nil, let attitude = motion?.attitude else {

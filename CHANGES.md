@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-16
+
+- Rejected queued Core Motion callbacks from ended view sessions before they
+  can restore an off-screen prompt or active play state.
+
 ## 2026-06-14
 
 - Added a pending physical-device checklist for exact motion entry,

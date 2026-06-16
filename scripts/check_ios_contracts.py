@@ -2,6 +2,7 @@
 """Portable contracts for the modernized UpDown iOS project."""
 
 from pathlib import Path
+import ast
 import json
 import plistlib
 import re
@@ -22,6 +23,7 @@ MOTION_FAILURE_RESET_PLAN = DOCS_PLANS / "2026-06-13-motion-failure-reset.md"
 BLANK_PROMPT_FILTER_PLAN = DOCS_PLANS / "2026-06-13-blank-prompt-filter.md"
 MAKE_ROOT_PROTECTION_PLAN = DOCS_PLANS / "2026-06-14-make-root-override-protection.md"
 MOTION_DEVICE_CHECKLIST_PLAN = DOCS_PLANS / "2026-06-14-motion-device-verification-checklist.md"
+STALE_MOTION_CALLBACK_PLAN = DOCS_PLANS / "2026-06-16-stale-motion-callback-guard.md"
 RETIRED_SDKS = ("Crashlytics.framework", "Fabric.framework", "MoPub.framework")
 
 
@@ -37,6 +39,22 @@ def read_text(relative_path):
 def require(condition, message):
     if not condition:
         raise AssertionError(message)
+
+
+def registered_main_checks():
+    checker_tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    for node in checker_tree.body:
+        if isinstance(node, ast.FunctionDef) and node.name == "main":
+            for statement in node.body:
+                if (
+                    isinstance(statement, ast.Assign)
+                    and any(isinstance(target, ast.Name) and target.id == "checks" for target in statement.targets)
+                    and isinstance(statement.value, (ast.List, ast.Tuple))
+                ):
+                    return {
+                        element.id for element in statement.value.elts if isinstance(element, ast.Name)
+                    }
+    return set()
 
 
 def workflow_step_blocks(workflow, action):
@@ -281,6 +299,92 @@ def check_motion_lifecycle_contracts():
         require(test_name in tests, f"XCTest coverage is missing {test_name}")
 
 
+def check_stale_motion_callback_contracts():
+    source = read_text("UpDown/ViewController.swift")
+    tests = read_text("UpDownTests/UpDownTests.swift")
+
+    for contract in (
+        "struct MotionUpdateSession",
+        "private(set) var generation = 0",
+        "mutating func begin() -> Int",
+        "mutating func invalidate()",
+        "func accepts(_ capturedGeneration: Int) -> Bool",
+        "private var motionUpdateSession = MotionUpdateSession()",
+        "let motionGeneration = motionUpdateSession.begin()",
+        "guard motionUpdateSession.accepts(motionGeneration) else",
+    ):
+        require(contract in source, f"stale motion callback guard must include {contract}")
+
+    session = source[
+        source.index("struct MotionUpdateSession") :
+        source.index("final class ViewController")
+    ]
+    require(session.count("generation += 1") == 2, "begin and invalidate must each advance the motion generation")
+    require("return generation" in session, "begin must return the advanced motion generation")
+    require(
+        "capturedGeneration == generation" in session,
+        "motion callbacks must match the current generation exactly",
+    )
+
+    disappearance = source[
+        source.index("override func viewWillDisappear(_ animated: Bool)") :
+        source.index("private func beginMotionUpdates()")
+    ]
+    invalidate_position = disappearance.index("motionUpdateSession.invalidate()")
+    stop_position = disappearance.index("motionManager.stopDeviceMotionUpdates()")
+    require(
+        invalidate_position < stop_position,
+        "motion callbacks must be invalidated before updates stop",
+    )
+
+    callback = source[
+        source.index("startDeviceMotionUpdates(to: .main)") :
+        source.index("let magnitude = sqrt(")
+    ]
+    require(
+        callback.index("guard let self else") < callback.index("guard motionUpdateSession.accepts(motionGeneration) else"),
+        "motion callback must validate its captured session after weak self recovery",
+    )
+    require(
+        callback.index("guard motionUpdateSession.accepts(motionGeneration) else")
+        < callback.index("guard error == nil, let attitude = motion?.attitude else"),
+        "stale callbacks must return before processing samples or errors",
+    )
+
+    for test_name in (
+        "testCurrentGenerationIsAccepted",
+        "testInvalidatedGenerationIsRejected",
+        "testReplacementSessionRejectsPreviousGeneration",
+    ):
+        require(test_name in tests, f"XCTest coverage is missing {test_name}")
+    require(
+        "XCTAssertTrue(session.accepts(generation))" in tests,
+        "XCTest must accept the current motion generation",
+    )
+    require(
+        "session.invalidate()" in tests and "XCTAssertFalse(session.accepts(generation))" in tests,
+        "XCTest must reject an invalidated motion generation",
+    )
+    require(
+        "XCTAssertFalse(session.accepts(previousGeneration))" in tests
+        and "XCTAssertTrue(session.accepts(currentGeneration))" in tests,
+        "XCTest must reject a replaced generation and accept its replacement",
+    )
+    require(
+        "check_stale_motion_callback_contracts" in registered_main_checks(),
+        "stale motion callback contracts must remain registered",
+    )
+
+    documentation = {
+        "README.md": "Queued callbacks from an ended motion session are ignored",
+        "SECURITY.md": "Queued callbacks from ended Core Motion sessions are rejected",
+        "VISION.md": "Ignore queued callbacks from ended CoreMotion sessions",
+        "CHANGES.md": "Rejected queued Core Motion callbacks from ended view sessions",
+    }
+    for relative_path, phrase in documentation.items():
+        require(phrase in read_text(relative_path), f"{relative_path} must document stale motion callback rejection")
+
+
 def check_hosted_verification():
     workflow = read_text(".github/workflows/check.yml")
     checkout_action = "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10"
@@ -379,6 +483,11 @@ def check_docs_plans():
     require(BLANK_PROMPT_FILTER_PLAN in plans, f"{BLANK_PROMPT_FILTER_PLAN.relative_to(ROOT)} must be present")
     require(MAKE_ROOT_PROTECTION_PLAN in plans, f"{MAKE_ROOT_PROTECTION_PLAN.relative_to(ROOT)} must be present")
     require(MOTION_DEVICE_CHECKLIST_PLAN in plans, f"{MOTION_DEVICE_CHECKLIST_PLAN.relative_to(ROOT)} must be present")
+    require(STALE_MOTION_CALLBACK_PLAN in plans, f"{STALE_MOTION_CALLBACK_PLAN.relative_to(ROOT)} must be present")
+    require(
+        "check_stale_motion_callback_contracts" in registered_main_checks(),
+        "stale motion callback contracts must remain registered",
+    )
     for plan in plans:
         text = plan.read_text(encoding="utf-8")
         require("Status: Completed" in text, f"{plan.name} must be completed")
@@ -391,6 +500,7 @@ def main():
         check_modern_project_contracts,
         check_offline_prompt_contracts,
         check_motion_lifecycle_contracts,
+        check_stale_motion_callback_contracts,
         check_hosted_verification,
         check_codeql_verification,
         check_docs_plans,

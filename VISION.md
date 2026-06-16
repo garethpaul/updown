@@ -23,6 +23,7 @@ Priority:
 - Reset active play safely when CoreMotion reports an error or missing sample
 - Tolerate small sensor fluctuations at motion play-state boundaries
 - Stop CoreMotion updates when the game view is off screen
+- Ignore queued callbacks from ended CoreMotion sessions
 - Keep motion play state as concrete local state, not an implicitly unwrapped
   optional
 - Keep physical-device threshold and lifecycle verification notes tied to the

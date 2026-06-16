@@ -5,7 +5,7 @@ date: 2026-06-16
 
 # Ignore Stale Core Motion Callbacks
 
-## Status: Planned
+## Status: Completed
 
 ## Context
 
@@ -66,10 +66,18 @@ shown again.
 
 ## Verification
 
-- Pending implementation.
-- Run focused portable contracts and full repository and external-directory
-  `make check` gates.
-- Run isolated hostile mutations across source, tests, checker registration,
-  guidance, and completed-plan status.
-- Native XCTest remains a hosted macOS gate; physical motion behavior remains
-  covered by the pending device checklist.
+- The focused stale-callback contract passed production integration,
+  generation semantics, invalidation ordering, XCTest, checker-registration,
+  and maintained-guidance assertions.
+- All seven portable implementation groups passed before the plan completion
+  gate was enabled.
+- Seven isolated hostile mutations were rejected across callback validation,
+  invalidation ordering, equality semantics, generation advancement, XCTest,
+  checker registration, and README guidance. The completed-plan mutation was
+  rejected by the final full gate.
+- Repository and external-directory `make check` passed all eight portable
+  groups. Native XCTest and build steps were truthfully skipped because
+  `xcodebuild` is unavailable on this Linux host; hosted macOS CI remains the
+  authoritative compiler and XCTest gate.
+- Physical motion behavior remains covered by the pending device checklist and
+  is not claimed by static or simulator evidence.

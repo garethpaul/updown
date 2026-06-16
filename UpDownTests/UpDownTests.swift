@@ -145,3 +145,32 @@ final class MotionHysteresisGateTests: XCTestCase {
         XCTAssertFalse(gate.shouldResetForUnavailableSample(currentlyPlaying: false))
     }
 }
+
+final class MotionUpdateSessionTests: XCTestCase {
+    func testCurrentGenerationIsAccepted() {
+        var session = MotionUpdateSession()
+
+        let generation = session.begin()
+
+        XCTAssertTrue(session.accepts(generation))
+    }
+
+    func testInvalidatedGenerationIsRejected() {
+        var session = MotionUpdateSession()
+        let generation = session.begin()
+
+        session.invalidate()
+
+        XCTAssertFalse(session.accepts(generation))
+    }
+
+    func testReplacementSessionRejectsPreviousGeneration() {
+        var session = MotionUpdateSession()
+        let previousGeneration = session.begin()
+
+        let currentGeneration = session.begin()
+
+        XCTAssertFalse(session.accepts(previousGeneration))
+        XCTAssertTrue(session.accepts(currentGeneration))
+    }
+}
