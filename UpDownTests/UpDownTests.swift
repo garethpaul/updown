@@ -174,3 +174,24 @@ final class MotionUpdateSessionTests: XCTestCase {
         XCTAssertTrue(session.accepts(currentGeneration))
     }
 }
+
+final class GameDisplayStateTests: XCTestCase {
+    func testStoppingActiveGameReturnsVisibleAndLogicalStateToIdle() {
+        var state = GameDisplayState()
+        state.show(prompt: "Airplane")
+
+        state.stop()
+
+        XCTAssertFalse(state.playing)
+        XCTAssertEqual(state.text, GameDisplayState.idleText)
+    }
+
+    func testStoppingIdleGameKeepsVisibleAndLogicalStateIdle() {
+        var state = GameDisplayState()
+
+        state.stop()
+
+        XCTAssertFalse(state.playing)
+        XCTAssertEqual(state.text, GameDisplayState.idleText)
+    }
+}

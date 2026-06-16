@@ -40,18 +40,41 @@ struct MotionUpdateSession {
     }
 }
 
+struct GameDisplayState {
+    static let idleText = "Tilt the phone up for a word"
+    static let unavailableText = "No prompts available"
+
+    private(set) var text = GameDisplayState.idleText
+    private(set) var playing = false
+
+    mutating func show(prompt: String) {
+        text = prompt
+        playing = true
+    }
+
+    mutating func showUnavailable() {
+        text = Self.unavailableText
+        playing = false
+    }
+
+    mutating func stop() {
+        text = Self.idleText
+        playing = false
+    }
+}
+
 final class ViewController: UIViewController {
     private let motionManager = CMMotionManager()
     private let motionGate = MotionHysteresisGate()
     private let promptProvider = PromptProvider()
     private var motionUpdateSession = MotionUpdateSession()
-    private var playing = false
+    private var displayState = GameDisplayState()
 
     @IBOutlet private weak var gameText: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        gameText.text = "Tilt the phone up for a word"
+        renderDisplayState()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -63,7 +86,7 @@ final class ViewController: UIViewController {
         super.viewWillDisappear(animated)
         motionUpdateSession.invalidate()
         motionManager.stopDeviceMotionUpdates()
-        playing = false
+        stop()
     }
 
     private func beginMotionUpdates() {
@@ -81,7 +104,7 @@ final class ViewController: UIViewController {
                 return
             }
             guard error == nil, let attitude = motion?.attitude else {
-                if motionGate.shouldResetForUnavailableSample(currentlyPlaying: playing) {
+                if motionGate.shouldResetForUnavailableSample(currentlyPlaying: displayState.playing) {
                     stop()
                 }
                 return
@@ -95,14 +118,14 @@ final class ViewController: UIViewController {
 
             let shouldPlay = motionGate.shouldPlay(
                 magnitude: magnitude,
-                currentlyPlaying: playing
+                currentlyPlaying: displayState.playing
             )
 
             if shouldPlay {
-                if !playing {
+                if !displayState.playing {
                     play()
                 }
-            } else if playing {
+            } else if displayState.playing {
                 stop()
             }
         }
@@ -110,17 +133,21 @@ final class ViewController: UIViewController {
 
     private func play() {
         guard let prompt = promptProvider.nextPrompt() else {
-            gameText.text = "No prompts available"
-            playing = false
+            displayState.showUnavailable()
+            renderDisplayState()
             return
         }
 
-        gameText.text = prompt
-        playing = true
+        displayState.show(prompt: prompt)
+        renderDisplayState()
     }
 
     private func stop() {
-        playing = false
-        gameText.text = "Tilt the phone up for a word"
+        displayState.stop()
+        renderDisplayState()
+    }
+
+    private func renderDisplayState() {
+        gameText.text = displayState.text
     }
 }

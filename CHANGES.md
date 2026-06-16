@@ -4,6 +4,8 @@
 
 - Rejected queued Core Motion callbacks from ended view sessions before they
   can restore an off-screen prompt or active play state.
+- Cleared visible prompt state when the game view disappears so the controller
+  returns with synchronized idle UI and play state.
 
 ## 2026-06-14
 

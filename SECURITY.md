@@ -41,6 +41,9 @@ Helpful reports include:
   idle state without retaining or persisting motion data.
 - Queued callbacks from ended Core Motion sessions are rejected before they can
   restore off-screen prompt or play state.
+- Leaving the game view clears visible prompt state after motion callbacks are
+  invalidated and updates stop, keeping off-screen logical and visible state
+  synchronized.
 
 ## Mobile Privacy Notes
 

@@ -5,7 +5,7 @@ date: 2026-06-16
 
 # Reset The Game UI When The View Disappears
 
-## Status: Planned
+## Status: Completed
 
 ## Context
 
@@ -67,3 +67,26 @@ logically idle and waiting for a new motion transition.
 
 Local `xcodebuild` and physical-device motion are unavailable on this Linux
 host. Hosted macOS CI remains the authoritative compiler and XCTest gate.
+
+## Work Completed
+
+- Added a testable display-state value that keeps prompt text and play state
+  synchronized across prompt, unavailable, and idle transitions.
+- Routed view disappearance through the shared `stop()` transition after
+  callback invalidation and Core Motion shutdown.
+- Added active and already-idle XCTest cases plus a registered portable
+  contract for source ordering, state semantics, tests, guidance, and plan
+  evidence.
+- Updated maintained lifecycle, security, vision, checklist, and change notes.
+
+## Verification Completed
+
+- `python3 -m py_compile scripts/check_ios_contracts.py`
+- Focused `check_disappearance_idle_reset_contracts` execution.
+- All eight implementation and repository contract groups excluding the
+  deliberate in-progress plan-status gate before this completion record.
+- Repository-root and external-directory `make check` passed all nine portable
+  groups; native XCTest was truthfully skipped because `xcodebuild` is absent.
+- Eight isolated mutations were rejected for shared-stop removal, reset
+  reordering, omitted rendering, missing idle-text reset, removed XCTest,
+  README drift, checker unregistration, and stale plan status.

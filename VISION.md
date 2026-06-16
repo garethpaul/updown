@@ -24,6 +24,7 @@ Priority:
 - Tolerate small sensor fluctuations at motion play-state boundaries
 - Stop CoreMotion updates when the game view is off screen
 - Ignore queued callbacks from ended CoreMotion sessions
+- Reset visible and logical game state together when the view disappears
 - Keep motion play state as concrete local state, not an implicitly unwrapped
   optional
 - Keep physical-device threshold and lifecycle verification notes tied to the

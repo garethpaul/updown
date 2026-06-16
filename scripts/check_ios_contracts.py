@@ -24,6 +24,7 @@ BLANK_PROMPT_FILTER_PLAN = DOCS_PLANS / "2026-06-13-blank-prompt-filter.md"
 MAKE_ROOT_PROTECTION_PLAN = DOCS_PLANS / "2026-06-14-make-root-override-protection.md"
 MOTION_DEVICE_CHECKLIST_PLAN = DOCS_PLANS / "2026-06-14-motion-device-verification-checklist.md"
 STALE_MOTION_CALLBACK_PLAN = DOCS_PLANS / "2026-06-16-stale-motion-callback-guard.md"
+DISAPPEARANCE_IDLE_RESET_PLAN = DOCS_PLANS / "2026-06-16-disappearance-idle-reset.md"
 RETIRED_SDKS = ("Crashlytics.framework", "Fabric.framework", "MoPub.framework")
 
 
@@ -245,7 +246,7 @@ def check_motion_lifecycle_contracts():
         "motion callback must treat errors and missing attitudes as unavailable samples",
     )
     require(
-        "motionGate.shouldResetForUnavailableSample(currentlyPlaying: playing)" in source,
+        "motionGate.shouldResetForUnavailableSample(currentlyPlaying: displayState.playing)" in source,
         "motion callback must consult the unavailable-sample reset decision",
     )
     require(
@@ -258,7 +259,7 @@ def check_motion_lifecycle_contracts():
     ]
     unavailable_contracts = (
         "guard error == nil, let attitude = motion?.attitude else",
-        "if motionGate.shouldResetForUnavailableSample(currentlyPlaying: playing)",
+        "if motionGate.shouldResetForUnavailableSample(currentlyPlaying: displayState.playing)",
         "stop()",
         "return",
     )
@@ -385,6 +386,89 @@ def check_stale_motion_callback_contracts():
         require(phrase in read_text(relative_path), f"{relative_path} must document stale motion callback rejection")
 
 
+def check_disappearance_idle_reset_contracts():
+    source = read_text("UpDown/ViewController.swift")
+    tests = read_text("UpDownTests/UpDownTests.swift")
+
+    for contract in (
+        "struct GameDisplayState",
+        'static let idleText = "Tilt the phone up for a word"',
+        'static let unavailableText = "No prompts available"',
+        "private(set) var text = GameDisplayState.idleText",
+        "private(set) var playing = false",
+        "mutating func show(prompt: String)",
+        "mutating func showUnavailable()",
+        "mutating func stop()",
+        "private var displayState = GameDisplayState()",
+        "gameText.text = displayState.text",
+    ):
+        require(contract in source, f"game display state must include {contract}")
+
+    display_state = source[
+        source.index("struct GameDisplayState") :
+        source.index("final class ViewController")
+    ]
+    state_transitions = (
+        "text = prompt\n        playing = true",
+        "text = Self.unavailableText\n        playing = false",
+        "text = Self.idleText\n        playing = false",
+    )
+    for transition in state_transitions:
+        require(transition in display_state, f"game display transition must preserve {transition!r}")
+
+    disappearance = source[
+        source.index("override func viewWillDisappear(_ animated: Bool)") :
+        source.index("private func beginMotionUpdates()")
+    ]
+    ordered_contracts = (
+        "motionUpdateSession.invalidate()",
+        "motionManager.stopDeviceMotionUpdates()",
+        "stop()",
+    )
+    positions = [disappearance.index(contract) for contract in ordered_contracts]
+    require(
+        positions == sorted(positions),
+        "view disappearance must invalidate callbacks, stop motion, then reset the display",
+    )
+    require(
+        "playing = false" not in disappearance,
+        "view disappearance must use the shared stop transition instead of clearing state directly",
+    )
+
+    stop_method = source[
+        source.index("private func stop()") :
+        source.index("private func renderDisplayState()")
+    ]
+    require(
+        stop_method.index("displayState.stop()") < stop_method.index("renderDisplayState()"),
+        "the stop transition must reset state before rendering idle UI",
+    )
+
+    for test_name in (
+        "testStoppingActiveGameReturnsVisibleAndLogicalStateToIdle",
+        "testStoppingIdleGameKeepsVisibleAndLogicalStateIdle",
+    ):
+        require(test_name in tests, f"XCTest coverage is missing {test_name}")
+    require(
+        tests.count("XCTAssertFalse(state.playing)") >= 2
+        and tests.count("XCTAssertEqual(state.text, GameDisplayState.idleText)") >= 2,
+        "XCTest must prove active and idle stops synchronize visible and logical state",
+    )
+    require(
+        "check_disappearance_idle_reset_contracts" in registered_main_checks(),
+        "disappearance idle-reset contracts must remain registered",
+    )
+
+    documentation = {
+        "README.md": "Leaving the game view clears any visible prompt and returns the display to idle",
+        "SECURITY.md": "Leaving the game view clears visible prompt state",
+        "VISION.md": "Reset visible and logical game state together when the view disappears",
+        "CHANGES.md": "Cleared visible prompt state when the game view disappears",
+    }
+    for relative_path, phrase in documentation.items():
+        require(phrase in read_text(relative_path), f"{relative_path} must document disappearance idle reset")
+
+
 def check_hosted_verification():
     workflow = read_text(".github/workflows/check.yml")
     checkout_action = "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10"
@@ -485,8 +569,16 @@ def check_docs_plans():
     require(MOTION_DEVICE_CHECKLIST_PLAN in plans, f"{MOTION_DEVICE_CHECKLIST_PLAN.relative_to(ROOT)} must be present")
     require(STALE_MOTION_CALLBACK_PLAN in plans, f"{STALE_MOTION_CALLBACK_PLAN.relative_to(ROOT)} must be present")
     require(
+        DISAPPEARANCE_IDLE_RESET_PLAN in plans,
+        f"{DISAPPEARANCE_IDLE_RESET_PLAN.relative_to(ROOT)} must be present",
+    )
+    require(
         "check_stale_motion_callback_contracts" in registered_main_checks(),
         "stale motion callback contracts must remain registered",
+    )
+    require(
+        "check_disappearance_idle_reset_contracts" in registered_main_checks(),
+        "disappearance idle-reset contracts must remain registered",
     )
     for plan in plans:
         text = plan.read_text(encoding="utf-8")
@@ -501,6 +593,7 @@ def main():
         check_offline_prompt_contracts,
         check_motion_lifecycle_contracts,
         check_stale_motion_callback_contracts,
+        check_disappearance_idle_reset_contracts,
         check_hosted_verification,
         check_codeql_verification,
         check_docs_plans,

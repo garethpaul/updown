@@ -70,6 +70,8 @@ fluctuations while playing, reset an active prompt after a motion error or
 missing attitude, and stop when the view leaves the screen.
 Queued callbacks from an ended motion session are ignored before they can
 update game state.
+Leaving the game view clears any visible prompt and returns the display to idle
+after motion callbacks are invalidated and updates stop.
 
 ## Privacy and Security
 
@@ -104,8 +106,8 @@ version, app commit, orientation, and result for each step.
 6. Interrupt motion availability while a prompt is active; an error or missing
    sample returns the game to idle.
 7. Leave the game view while playing; updates stop and play state clears.
-   Confirm a queued callback cannot restore the prompt, then return to the view
-   and confirm one motion subscription resumes.
+   Confirm the idle instruction replaces the visible prompt, a queued callback
+   cannot restore it, and one motion subscription resumes after returning.
 
 This checklist is pending physical-device execution. Simulator and static
 results do not satisfy it.
