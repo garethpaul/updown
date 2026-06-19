@@ -1,5 +1,45 @@
 # Changes
 
+## 2026-06-19
+
+- Canonicalized prompt comparison without rewriting display values, preventing
+  immediate repeats caused by case, width, whitespace, or equivalent Unicode.
+- Invalidated Core Motion sessions when the app resigns active and restarted a
+  single fresh session only for an active, visible game view.
+
+## 2026-06-16
+
+- Rejected queued Core Motion callbacks from ended view sessions before they
+  can restore an off-screen prompt or active play state.
+- Cleared visible prompt state when the game view disappears so the controller
+  returns with synchronized idle UI and play state.
+
+## 2026-06-14
+
+- Added a pending physical-device checklist for exact motion entry,
+  continuation, reset, unavailable-sample, and view-lifecycle behavior without
+  claiming simulator or static checks as device evidence.
+
+## 2026-06-13
+
+- Filtered blank and whitespace-only offline prompts at provider initialization
+  while preserving accepted clue text and duplicate weighting.
+- Reset active play to the existing idle prompt when Core Motion reports an
+  error or omits an attitude sample, while leaving idle state unchanged.
+- Added deterministic XCTest and portable contracts for unavailable motion
+  samples without changing valid-sample hysteresis thresholds.
+- Prevented duplicate prompt strings at different indexes from appearing as
+  consecutive visible clues while preserving eligible duplicate weighting and
+  all-identical source behavior.
+
+## 2026-06-12
+
+- Disabled checkout credential persistence in both hosted jobs and bound the
+  fail-closed contract to each pinned checkout step.
+- Ignored Python bytecode caches produced by local contract compilation.
+- Replaced opaque default Swift CodeQL autobuild with a pinned advanced
+  workflow that explicitly builds the unsigned `UpDown` app target.
+
 ## 2026-06-10
 
 - Added a testable motion hysteresis gate so small sensor fluctuations at the

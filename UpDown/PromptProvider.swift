@@ -1,15 +1,28 @@
+import Foundation
+
 final class PromptProvider {
     typealias IndexProvider = (Int) -> Int
 
-    private let prompts: [String]
+    private struct Prompt {
+        let displayValue: String
+        let comparisonKey: String
+    }
+
+    private let prompts: [Prompt]
     private let indexProvider: IndexProvider
-    private var previousIndex: Int?
+    private var previousPromptKey: String?
 
     init(
         prompts: [String] = PromptProvider.defaultPrompts,
         indexProvider: @escaping IndexProvider = { Int.random(in: 0..<$0) }
     ) {
-        self.prompts = prompts
+        self.prompts = prompts.compactMap { displayValue in
+            let comparisonKey = PromptProvider.comparisonKey(for: displayValue)
+            guard !comparisonKey.isEmpty else {
+                return nil
+            }
+            return Prompt(displayValue: displayValue, comparisonKey: comparisonKey)
+        }
         self.indexProvider = indexProvider
     }
 
@@ -18,23 +31,30 @@ final class PromptProvider {
             return nil
         }
 
-        let candidateCount = previousIndex == nil || prompts.count == 1
-            ? prompts.count
-            : prompts.count - 1
-        let candidate = indexProvider(candidateCount)
-        guard (0..<candidateCount).contains(candidate) else {
+        let alternatives = previousPromptKey.map { previousKey in
+            prompts.filter { $0.comparisonKey != previousKey }
+        } ?? prompts
+        let candidates = alternatives.isEmpty ? prompts : alternatives
+        let candidate = indexProvider(candidates.count)
+        guard candidates.indices.contains(candidate) else {
             return nil
         }
 
-        let index: Int
-        if let previousIndex, prompts.count > 1, candidate >= previousIndex {
-            index = candidate + 1
-        } else {
-            index = candidate
-        }
+        let prompt = candidates[candidate]
+        previousPromptKey = prompt.comparisonKey
+        return prompt.displayValue
+    }
 
-        previousIndex = index
-        return prompts[index]
+    private static func comparisonKey(for prompt: String) -> String {
+        prompt
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+            .precomposedStringWithCanonicalMapping
+            .folding(
+                options: [.caseInsensitive, .widthInsensitive],
+                locale: Locale(identifier: "en_US_POSIX")
+            )
     }
 
     static let defaultPrompts = [

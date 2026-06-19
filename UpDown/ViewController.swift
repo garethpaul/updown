@@ -17,30 +17,141 @@ struct MotionHysteresisGate {
         let activeRange = currentlyPlaying ? continuationRange : startRange
         return activeRange.contains(magnitude)
     }
+
+    func shouldResetForUnavailableSample(currentlyPlaying: Bool) -> Bool {
+        currentlyPlaying
+    }
+}
+
+struct MotionUpdateSession {
+    private(set) var generation = 0
+
+    mutating func begin() -> Int {
+        generation += 1
+        return generation
+    }
+
+    mutating func invalidate() {
+        generation += 1
+    }
+
+    func accepts(_ capturedGeneration: Int) -> Bool {
+        capturedGeneration == generation
+    }
+}
+
+struct MotionLifecycleState {
+    private var isViewVisible = false
+    private var isApplicationActive = false
+
+    var shouldRunMotionUpdates: Bool {
+        isViewVisible && isApplicationActive
+    }
+
+    mutating func viewWillAppear(applicationIsActive: Bool) {
+        isViewVisible = true
+        isApplicationActive = applicationIsActive
+    }
+
+    mutating func viewWillDisappear() {
+        isViewVisible = false
+    }
+
+    mutating func applicationWillResignActive() {
+        isApplicationActive = false
+    }
+
+    mutating func applicationDidBecomeActive() {
+        isApplicationActive = true
+    }
+}
+
+struct GameDisplayState {
+    static let idleText = "Tilt the phone up for a word"
+    static let unavailableText = "No prompts available"
+
+    private(set) var text = GameDisplayState.idleText
+    private(set) var playing = false
+
+    mutating func show(prompt: String) {
+        text = prompt
+        playing = true
+    }
+
+    mutating func showUnavailable() {
+        text = Self.unavailableText
+        playing = false
+    }
+
+    mutating func stop() {
+        text = Self.idleText
+        playing = false
+    }
 }
 
 final class ViewController: UIViewController {
     private let motionManager = CMMotionManager()
     private let motionGate = MotionHysteresisGate()
     private let promptProvider = PromptProvider()
-    private var playing = false
+    private var motionUpdateSession = MotionUpdateSession()
+    private var motionLifecycleState = MotionLifecycleState()
+    private var displayState = GameDisplayState()
 
     @IBOutlet private weak var gameText: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        gameText.text = "Tilt the phone up for a word"
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationWillResignActive),
+            name: UIApplication.willResignActiveNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationDidBecomeActive),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
+        renderDisplayState()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        beginMotionUpdates()
+        motionLifecycleState.viewWillAppear(
+            applicationIsActive: UIApplication.shared.applicationState == .active
+        )
+        synchronizeMotionUpdates()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        motionLifecycleState.viewWillDisappear()
+        synchronizeMotionUpdates()
+    }
+
+    @objc private func applicationWillResignActive() {
+        motionLifecycleState.applicationWillResignActive()
+        synchronizeMotionUpdates()
+    }
+
+    @objc private func applicationDidBecomeActive() {
+        motionLifecycleState.applicationDidBecomeActive()
+        synchronizeMotionUpdates()
+    }
+
+    private func synchronizeMotionUpdates() {
+        guard motionLifecycleState.shouldRunMotionUpdates else {
+            endMotionUpdates()
+            return
+        }
+        beginMotionUpdates()
+    }
+
+    private func endMotionUpdates() {
+        motionUpdateSession.invalidate()
         motionManager.stopDeviceMotionUpdates()
-        playing = false
+        stop()
     }
 
     private func beginMotionUpdates() {
@@ -49,8 +160,18 @@ final class ViewController: UIViewController {
             return
         }
 
-        motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, _ in
-            guard let self, let attitude = motion?.attitude else {
+        let motionGeneration = motionUpdateSession.begin()
+        motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, error in
+            guard let self else {
+                return
+            }
+            guard motionUpdateSession.accepts(motionGeneration) else {
+                return
+            }
+            guard error == nil, let attitude = motion?.attitude else {
+                if motionGate.shouldResetForUnavailableSample(currentlyPlaying: displayState.playing) {
+                    stop()
+                }
                 return
             }
 
@@ -62,14 +183,14 @@ final class ViewController: UIViewController {
 
             let shouldPlay = motionGate.shouldPlay(
                 magnitude: magnitude,
-                currentlyPlaying: playing
+                currentlyPlaying: displayState.playing
             )
 
             if shouldPlay {
-                if !playing {
+                if !displayState.playing {
                     play()
                 }
-            } else if playing {
+            } else if displayState.playing {
                 stop()
             }
         }
@@ -77,17 +198,21 @@ final class ViewController: UIViewController {
 
     private func play() {
         guard let prompt = promptProvider.nextPrompt() else {
-            gameText.text = "No prompts available"
-            playing = false
+            displayState.showUnavailable()
+            renderDisplayState()
             return
         }
 
-        gameText.text = prompt
-        playing = true
+        displayState.show(prompt: prompt)
+        renderDisplayState()
     }
 
     private func stop() {
-        playing = false
-        gameText.text = "Tilt the phone up for a word"
+        displayState.stop()
+        renderDisplayState()
+    }
+
+    private func renderDisplayState() {
+        gameText.text = displayState.text
     }
 }

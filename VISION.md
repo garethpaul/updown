@@ -16,17 +16,23 @@ Priority:
 - Preserve the motion-triggered play/stop flow
 - Keep prompt selection offline and deterministic under test
 - Avoid immediately repeating a prompt when alternatives are available
+- Treat duplicate prompt strings as the same visible clue for repeat prevention
+- Reject blank offline prompt values without rewriting accepted clue text
 - Keep advertising, analytics, and crash-reporting SDKs out of the app
 - Keep the Swift 5 / iOS 13+ project reproducible with a shared test scheme
-- Treat missing CoreMotion samples as non-crashing no-ops
+- Reset active play safely when CoreMotion reports an error or missing sample
 - Tolerate small sensor fluctuations at motion play-state boundaries
 - Stop CoreMotion updates when the game view is off screen
+- Ignore queued callbacks from ended CoreMotion sessions
+- Treat application inactivity as the end of the current CoreMotion session
+- Reset visible and logical game state together when the view disappears
 - Keep motion play state as concrete local state, not an implicitly unwrapped
   optional
+- Keep physical-device threshold and lifecycle verification notes tied to the
+  exact source ranges without claiming an unexecuted device run
 
 Next priorities:
 
-- Add physical-device verification notes for motion thresholds
 - Expand prompt categories without adding network or tracking dependencies
 - Improve accessibility while preserving the one-screen game flow
 
@@ -42,8 +48,9 @@ Canonical security policy and reporting:
 
 - [`SECURITY.md`](SECURITY.md)
 
-The app processes motion data only while its game view is visible. It should
-not retain motion history or add silent usage collection.
+The app processes motion data only while its game view is visible and the
+application is active. It should not retain motion history or add silent usage
+collection.
 
 ## What We Will Not Merge (For Now)
 

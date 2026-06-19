@@ -32,6 +32,22 @@ Helpful reports include:
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
 - Review found database, model, query, or persistence-related code; changes in those areas should receive security-focused review before merge.
 - No primary dependency manifest was detected in the repository root. If dependencies are added later, include a manifest and prefer reproducible installation instructions.
+- Offline prompt history compares visible clue values without globally
+  deduplicating the source, preventing confusing immediate repeats while
+  preserving eligible duplicate weighting.
+- Prompt history compares canonical case, width, whitespace, and Unicode forms
+  so visually equivalent local clues cannot repeat immediately.
+- Blank offline prompt values are removed before selection so malformed local
+  inventory cannot render an empty clue or consume prompt history.
+- Core Motion errors and missing attitude samples reset an active prompt to the
+  idle state without retaining or persisting motion data.
+- Queued callbacks from ended Core Motion sessions are rejected before they can
+  restore off-screen prompt or play state.
+- Application deactivation invalidates the active Core Motion session even when
+  the game view remains on screen, preventing background callback ownership.
+- Leaving the game view clears visible prompt state after motion callbacks are
+  invalidated and updates stop, keeping off-screen logical and visible state
+  synchronized.
 
 ## Mobile Privacy Notes
 
