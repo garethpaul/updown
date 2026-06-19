@@ -24,6 +24,7 @@ Priority:
 - Tolerate small sensor fluctuations at motion play-state boundaries
 - Stop CoreMotion updates when the game view is off screen
 - Ignore queued callbacks from ended CoreMotion sessions
+- Treat application inactivity as the end of the current CoreMotion session
 - Reset visible and logical game state together when the view disappears
 - Keep motion play state as concrete local state, not an implicitly unwrapped
   optional
@@ -47,8 +48,9 @@ Canonical security policy and reporting:
 
 - [`SECURITY.md`](SECURITY.md)
 
-The app processes motion data only while its game view is visible. It should
-not retain motion history or add silent usage collection.
+The app processes motion data only while its game view is visible and the
+application is active. It should not retain motion history or add silent usage
+collection.
 
 ## What We Will Not Merge (For Now)
 

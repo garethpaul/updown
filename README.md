@@ -59,11 +59,12 @@ remains in the canonical macOS Check job.
 ## Tested Behavior
 
 XCTest verifies deterministic prompt selection, immediate-repeat prevention by
-visible prompt value, duplicate weighting, all-identical, single-item, empty,
+canonical visible prompt value, duplicate weighting, all-identical, single-item, empty,
 and blank-source behavior, mixed-source filtering without display rewriting,
 out-of-range selector handling, the bundled prompt inventory, motion threshold
-hysteresis, active-to-idle reset decisions for unavailable motion samples, and
-motion-session generation acceptance and invalidation.
+hysteresis, active-to-idle reset decisions for unavailable motion samples,
+motion-session generation acceptance and invalidation, and foreground/background
+motion ownership while the game view remains visible.
 Static contracts additionally require motion callbacks to avoid retaining the
 view controller, prevent duplicate subscriptions, tolerate small threshold
 fluctuations while playing, reset an active prompt after a motion error or
@@ -72,14 +73,19 @@ Queued callbacks from an ended motion session are ignored before they can
 update game state.
 Leaving the game view clears any visible prompt and returns the display to idle
 after motion callbacks are invalidated and updates stop.
+Moving the app out of the active state performs the same invalidation and idle
+reset; returning to an active, visible game view starts one fresh session.
 
 ## Privacy and Security
 
 - Prompt selection is local and does not contact a server.
 - The provider removes blank and whitespace-only prompt values before
   selection while preserving accepted clue text unchanged.
+- Immediate-repeat checks collapse whitespace and normalize case, width, and
+  canonically equivalent Unicode without changing the displayed clue.
 - The app does not contain ad, analytics, or crash-reporting SDKs.
-- Motion data is processed in memory only while the game view is visible.
+- Motion data is processed in memory only while the game view is visible and
+  the application is active.
 - No credentials, API keys, or developer-specific build paths are required.
 
 ## Limitations
@@ -108,6 +114,9 @@ version, app commit, orientation, and result for each step.
 7. Leave the game view while playing; updates stop and play state clears.
    Confirm the idle instruction replaces the visible prompt, a queued callback
    cannot restore it, and one motion subscription resumes after returning.
+8. With the game view still visible, background and foreground the app. Confirm
+   the prompt resets to idle in the background, no queued callback restores it,
+   and exactly one fresh subscription resumes after activation.
 
 This checklist is pending physical-device execution. Simulator and static
 results do not satisfy it.

@@ -3,16 +3,25 @@ import Foundation
 final class PromptProvider {
     typealias IndexProvider = (Int) -> Int
 
-    private let prompts: [String]
+    private struct Prompt {
+        let displayValue: String
+        let comparisonKey: String
+    }
+
+    private let prompts: [Prompt]
     private let indexProvider: IndexProvider
-    private var previousPrompt: String?
+    private var previousPromptKey: String?
 
     init(
         prompts: [String] = PromptProvider.defaultPrompts,
         indexProvider: @escaping IndexProvider = { Int.random(in: 0..<$0) }
     ) {
-        self.prompts = prompts.filter {
-            !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        self.prompts = prompts.compactMap { displayValue in
+            let comparisonKey = PromptProvider.comparisonKey(for: displayValue)
+            guard !comparisonKey.isEmpty else {
+                return nil
+            }
+            return Prompt(displayValue: displayValue, comparisonKey: comparisonKey)
         }
         self.indexProvider = indexProvider
     }
@@ -22,8 +31,8 @@ final class PromptProvider {
             return nil
         }
 
-        let alternatives = previousPrompt.map { previous in
-            prompts.filter { $0 != previous }
+        let alternatives = previousPromptKey.map { previousKey in
+            prompts.filter { $0.comparisonKey != previousKey }
         } ?? prompts
         let candidates = alternatives.isEmpty ? prompts : alternatives
         let candidate = indexProvider(candidates.count)
@@ -32,8 +41,20 @@ final class PromptProvider {
         }
 
         let prompt = candidates[candidate]
-        previousPrompt = prompt
-        return prompt
+        previousPromptKey = prompt.comparisonKey
+        return prompt.displayValue
+    }
+
+    private static func comparisonKey(for prompt: String) -> String {
+        prompt
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+            .precomposedStringWithCanonicalMapping
+            .folding(
+                options: [.caseInsensitive, .widthInsensitive],
+                locale: Locale(identifier: "en_US_POSIX")
+            )
     }
 
     static let defaultPrompts = [

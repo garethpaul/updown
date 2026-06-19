@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-19
+
+- Canonicalized prompt comparison without rewriting display values, preventing
+  immediate repeats caused by case, width, whitespace, or equivalent Unicode.
+- Invalidated Core Motion sessions when the app resigns active and restarted a
+  single fresh session only for an active, visible game view.
+
 ## 2026-06-16
 
 - Rejected queued Core Motion callbacks from ended view sessions before they

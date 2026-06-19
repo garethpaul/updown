@@ -40,6 +40,32 @@ struct MotionUpdateSession {
     }
 }
 
+struct MotionLifecycleState {
+    private var isViewVisible = false
+    private var isApplicationActive = false
+
+    var shouldRunMotionUpdates: Bool {
+        isViewVisible && isApplicationActive
+    }
+
+    mutating func viewWillAppear(applicationIsActive: Bool) {
+        isViewVisible = true
+        isApplicationActive = applicationIsActive
+    }
+
+    mutating func viewWillDisappear() {
+        isViewVisible = false
+    }
+
+    mutating func applicationWillResignActive() {
+        isApplicationActive = false
+    }
+
+    mutating func applicationDidBecomeActive() {
+        isApplicationActive = true
+    }
+}
+
 struct GameDisplayState {
     static let idleText = "Tilt the phone up for a word"
     static let unavailableText = "No prompts available"
@@ -68,22 +94,61 @@ final class ViewController: UIViewController {
     private let motionGate = MotionHysteresisGate()
     private let promptProvider = PromptProvider()
     private var motionUpdateSession = MotionUpdateSession()
+    private var motionLifecycleState = MotionLifecycleState()
     private var displayState = GameDisplayState()
 
     @IBOutlet private weak var gameText: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationWillResignActive),
+            name: UIApplication.willResignActiveNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationDidBecomeActive),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
         renderDisplayState()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        beginMotionUpdates()
+        motionLifecycleState.viewWillAppear(
+            applicationIsActive: UIApplication.shared.applicationState == .active
+        )
+        synchronizeMotionUpdates()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        motionLifecycleState.viewWillDisappear()
+        synchronizeMotionUpdates()
+    }
+
+    @objc private func applicationWillResignActive() {
+        motionLifecycleState.applicationWillResignActive()
+        synchronizeMotionUpdates()
+    }
+
+    @objc private func applicationDidBecomeActive() {
+        motionLifecycleState.applicationDidBecomeActive()
+        synchronizeMotionUpdates()
+    }
+
+    private func synchronizeMotionUpdates() {
+        guard motionLifecycleState.shouldRunMotionUpdates else {
+            endMotionUpdates()
+            return
+        }
+        beginMotionUpdates()
+    }
+
+    private func endMotionUpdates() {
         motionUpdateSession.invalidate()
         motionManager.stopDeviceMotionUpdates()
         stop()

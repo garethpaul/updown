@@ -146,23 +146,32 @@ def check_offline_prompt_contracts():
     require(len(re.findall(r'^\s*".+",?$', prompts_match.group("body"), re.MULTILINE)) >= 20, "offline source must contain at least 20 prompts")
     require("guard !prompts.isEmpty" in provider, "empty prompt sources must fail safely")
     require("final class PromptProvider" in provider, "prompt provider must retain selection history")
-    require("private var previousPrompt: String?" in provider, "prompt provider must track the previous visible value")
-    require("prompts.filter { $0 != previous }" in provider, "prompt provider must exclude the previous visible value")
+    require("private var previousPromptKey: String?" in provider, "prompt provider must track the previous canonical value")
+    require("prompts.filter { $0.comparisonKey != previousKey }" in provider, "prompt provider must exclude the previous canonical value")
     require("alternatives.isEmpty ? prompts : alternatives" in provider, "all-identical prompt sources must remain playable")
     require("indexProvider(candidates.count)" in provider, "injected selection must use the eligible candidate count")
     require("candidates.indices.contains(candidate)" in provider, "injected candidate indexes must be bounds checked")
-    require("previousPrompt = prompt" in provider, "prompt provider must remember the returned visible value")
+    require("previousPromptKey = prompt.comparisonKey" in provider, "prompt provider must remember the returned canonical value")
     require("Set(" not in provider, "eligible duplicate prompts must retain source weighting")
     require("import Foundation" in provider, "blank prompt filtering must import Foundation string utilities")
     require(
-        "self.prompts = prompts.filter" in provider
-        and "trimmingCharacters(in: .whitespacesAndNewlines).isEmpty" in provider,
+        "self.prompts = prompts.compactMap" in provider
+        and "guard !comparisonKey.isEmpty" in provider,
         "prompt provider must filter empty and whitespace-only source values once during initialization",
     )
     require(
         "self.prompts = prompts.map" not in provider,
         "prompt provider must preserve accepted display strings instead of rewriting them",
     )
+    for contract in (
+        "private static func comparisonKey(for prompt: String) -> String",
+        ".components(separatedBy: .whitespacesAndNewlines)",
+        '.joined(separator: " ")',
+        ".precomposedStringWithCanonicalMapping",
+        "options: [.caseInsensitive, .widthInsensitive]",
+        'Locale(identifier: "en_US_POSIX")',
+    ):
+        require(contract in provider, f"prompt canonicalization must include {contract}")
 
     for test_name in (
         "testReturnsPromptAtInjectedIndex",
@@ -175,6 +184,7 @@ def check_offline_prompt_contracts():
         "testDuplicatePromptValuesDoNotRepeatWhenAnotherValueExists",
         "testEligibleDuplicateValuesRetainTheirSelectionWeight",
         "testAllIdenticalPromptValuesRemainPlayable",
+        "testVisuallyEquivalentPromptValuesDoNotRepeatWhenAlternativeExists",
         "testDefaultPromptSourceContainsPlayableValues",
     ):
         require(test_name in tests, f"XCTest coverage is missing {test_name}")
@@ -230,6 +240,16 @@ def check_motion_lifecycle_contracts():
     require("!motionManager.isDeviceMotionActive" in source, "duplicate motion subscriptions must be prevented")
     require("motionManager.stopDeviceMotionUpdates()" in source, "motion updates must stop off screen")
     require("override func viewWillDisappear(_ animated: Bool)" in source, "modern lifecycle override must be used")
+    for contract in (
+        "struct MotionLifecycleState",
+        "var shouldRunMotionUpdates: Bool",
+        "isViewVisible && isApplicationActive",
+        "UIApplication.willResignActiveNotification",
+        "UIApplication.didBecomeActiveNotification",
+        "private func synchronizeMotionUpdates()",
+        "private func endMotionUpdates()",
+    ):
+        require(contract in source, f"application motion lifecycle must include {contract}")
     require("promptProvider.nextPrompt()" in source, "motion play state must use the offline prompt provider")
     require("@IBOutlet private weak var gameText" in source, "storyboard outlet must avoid retaining its view")
     require("struct MotionHysteresisGate" in source, "motion thresholds must use a testable hysteresis gate")
@@ -296,6 +316,11 @@ def check_motion_lifecycle_contracts():
         "testStopsOutsideContinuationRange",
         "testUnavailableSampleResetsActivePlayState",
         "testUnavailableSampleLeavesIdleStateUnchanged",
+        "testVisibleActiveViewRunsMotionUpdates",
+        "testBackgroundingVisibleViewSuspendsMotionUpdates",
+        "testForegroundingVisibleViewRestartsMotionUpdates",
+        "testForegroundingHiddenViewDoesNotStartMotionUpdates",
+        "testViewAppearingWhileApplicationIsInactiveDoesNotStartMotionUpdates",
     ):
         require(test_name in tests, f"XCTest coverage is missing {test_name}")
 
@@ -327,12 +352,12 @@ def check_stale_motion_callback_contracts():
         "motion callbacks must match the current generation exactly",
     )
 
-    disappearance = source[
-        source.index("override func viewWillDisappear(_ animated: Bool)") :
+    end_updates = source[
+        source.index("private func endMotionUpdates()") :
         source.index("private func beginMotionUpdates()")
     ]
-    invalidate_position = disappearance.index("motionUpdateSession.invalidate()")
-    stop_position = disappearance.index("motionManager.stopDeviceMotionUpdates()")
+    invalidate_position = end_updates.index("motionUpdateSession.invalidate()")
+    stop_position = end_updates.index("motionManager.stopDeviceMotionUpdates()")
     require(
         invalidate_position < stop_position,
         "motion callbacks must be invalidated before updates stop",
@@ -418,6 +443,16 @@ def check_disappearance_idle_reset_contracts():
 
     disappearance = source[
         source.index("override func viewWillDisappear(_ animated: Bool)") :
+        source.index("@objc private func applicationWillResignActive()")
+    ]
+    for contract in (
+        "motionLifecycleState.viewWillDisappear()",
+        "synchronizeMotionUpdates()",
+    ):
+        require(contract in disappearance, f"view disappearance must include {contract}")
+
+    end_updates = source[
+        source.index("private func endMotionUpdates()") :
         source.index("private func beginMotionUpdates()")
     ]
     ordered_contracts = (
@@ -425,13 +460,13 @@ def check_disappearance_idle_reset_contracts():
         "motionManager.stopDeviceMotionUpdates()",
         "stop()",
     )
-    positions = [disappearance.index(contract) for contract in ordered_contracts]
+    positions = [end_updates.index(contract) for contract in ordered_contracts]
     require(
         positions == sorted(positions),
         "view disappearance must invalidate callbacks, stop motion, then reset the display",
     )
     require(
-        "playing = false" not in disappearance,
+        "playing = false" not in end_updates,
         "view disappearance must use the shared stop transition instead of clearing state directly",
     )
 

@@ -99,6 +99,20 @@ final class PromptProviderTests: XCTestCase {
         XCTAssertEqual(selectionCounts, [2, 2])
     }
 
+    func testVisuallyEquivalentPromptValuesDoNotRepeatWhenAlternativeExists() {
+        var selectionCounts: [Int] = []
+        let provider = PromptProvider(
+            prompts: ["Café racer", "  CAFE\u{301}   RACER  ", "Volcano"]
+        ) { count in
+            selectionCounts.append(count)
+            return 0
+        }
+
+        XCTAssertEqual(provider.nextPrompt(), "Café racer")
+        XCTAssertEqual(provider.nextPrompt(), "Volcano")
+        XCTAssertEqual(selectionCounts, [3, 1])
+    }
+
     func testDefaultPromptSourceContainsPlayableValues() {
         XCTAssertGreaterThanOrEqual(PromptProvider.defaultPrompts.count, 20)
         XCTAssertTrue(
@@ -172,6 +186,54 @@ final class MotionUpdateSessionTests: XCTestCase {
 
         XCTAssertFalse(session.accepts(previousGeneration))
         XCTAssertTrue(session.accepts(currentGeneration))
+    }
+}
+
+final class MotionLifecycleStateTests: XCTestCase {
+    func testVisibleActiveViewRunsMotionUpdates() {
+        var state = MotionLifecycleState()
+
+        state.viewWillAppear(applicationIsActive: true)
+
+        XCTAssertTrue(state.shouldRunMotionUpdates)
+    }
+
+    func testBackgroundingVisibleViewSuspendsMotionUpdates() {
+        var state = MotionLifecycleState()
+        state.viewWillAppear(applicationIsActive: true)
+
+        state.applicationWillResignActive()
+
+        XCTAssertFalse(state.shouldRunMotionUpdates)
+    }
+
+    func testForegroundingVisibleViewRestartsMotionUpdates() {
+        var state = MotionLifecycleState()
+        state.viewWillAppear(applicationIsActive: true)
+        state.applicationWillResignActive()
+
+        state.applicationDidBecomeActive()
+
+        XCTAssertTrue(state.shouldRunMotionUpdates)
+    }
+
+    func testForegroundingHiddenViewDoesNotStartMotionUpdates() {
+        var state = MotionLifecycleState()
+        state.viewWillAppear(applicationIsActive: true)
+        state.viewWillDisappear()
+        state.applicationWillResignActive()
+
+        state.applicationDidBecomeActive()
+
+        XCTAssertFalse(state.shouldRunMotionUpdates)
+    }
+
+    func testViewAppearingWhileApplicationIsInactiveDoesNotStartMotionUpdates() {
+        var state = MotionLifecycleState()
+
+        state.viewWillAppear(applicationIsActive: false)
+
+        XCTAssertFalse(state.shouldRunMotionUpdates)
     }
 }
 
