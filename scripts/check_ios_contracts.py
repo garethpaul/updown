@@ -22,6 +22,7 @@ PROMPT_VALUE_REPEAT_PLAN = DOCS_PLANS / "2026-06-13-no-immediate-prompt-value-re
 MOTION_FAILURE_RESET_PLAN = DOCS_PLANS / "2026-06-13-motion-failure-reset.md"
 BLANK_PROMPT_FILTER_PLAN = DOCS_PLANS / "2026-06-13-blank-prompt-filter.md"
 MAKE_ROOT_PROTECTION_PLAN = DOCS_PLANS / "2026-06-14-make-root-override-protection.md"
+MAKE_AUTHORITY_ISOLATION_PLAN = DOCS_PLANS / "2026-06-21-make-authority-isolation.md"
 MOTION_DEVICE_CHECKLIST_PLAN = DOCS_PLANS / "2026-06-14-motion-device-verification-checklist.md"
 STALE_MOTION_CALLBACK_PLAN = DOCS_PLANS / "2026-06-16-stale-motion-callback-guard.md"
 DISAPPEARANCE_IDLE_RESET_PLAN = DOCS_PLANS / "2026-06-16-disappearance-idle-reset.md"
@@ -519,8 +520,8 @@ def check_hosted_verification():
         'python-version: ["3.10", "3.12", "3.14"]',
         checkout_action,
         "persist-credentials: false",
-        "run: make static",
-        "run: make check",
+        "run: /usr/bin/make static",
+        "run: /usr/bin/make check",
     ):
         require(contract in workflow, f"hosted verification must include {contract!r}")
     require("@v" not in workflow, "hosted actions must use immutable commits")
@@ -537,14 +538,39 @@ def check_hosted_verification():
 
     makefile = read_text("Makefile")
     makefile_lines = set(makefile.splitlines())
-    require(
-        "override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))" in makefile_lines,
-        "Makefile must protect commands rooted at the repository",
-    )
-    require("PYTHON ?= python3" in makefile_lines, "Makefile must preserve the Python command override")
-    require('"$(ROOT)/scripts/check_ios_contracts.py"' in makefile, "Makefile must use the rooted checker path")
-    require('"$(ROOT)/scripts/test_ios.sh"' in makefile, "Makefile must use the rooted iOS test path")
-    require('cd "$(ROOT)" && xcodebuild' in makefile, "Makefile must run builds from the repository root")
+    for contract in (
+        ".DEFAULT_GOAL := check",
+        ".SECONDEXPANSION:",
+        "PYTHON ?= python3",
+        "override PYTHON := $(value PYTHON)",
+        "override SHELL := /bin/sh",
+        "override .SHELLFLAGS := -c",
+        "override MAKEFILES :=",
+        "ifneq ($(origin MAKEFILE_LIST),file)",
+        "export ROOT",
+        "root-test:",
+        '\t/bin/sh "$$ROOT/scripts/test-makefile-root.sh"',
+    ):
+        require(contract in makefile_lines, f"Makefile authority contract is missing {contract!r}")
+    require("MAKEFLAGS must not be overridden" in makefile, "Makefile must reject caller MAKEFLAGS assignments")
+    require("MAKEFILES must be empty" in makefile, "Makefile must reject startup include files")
+    require("MAKEFILE_LIST must not be overridden" in makefile, "Makefile must reject Makefile-list replacement")
+    require("PYTHON must be a literal executable path" in makefile, "Makefile must reject Python Make syntax")
+    require('"$$PYTHON" "$$ROOT/scripts/check_ios_contracts.py"' in makefile, "Makefile must use the rooted checker path")
+    require('"$$ROOT/scripts/test_ios.sh"' in makefile, "Makefile must use the rooted iOS test path")
+    require('cd "$$ROOT" && xcodebuild' in makefile, "Makefile must run builds from the repository root")
+    require("verify: root-test static test" in makefile_lines, "full verification must run the authority harness")
+
+    authority_test = read_text("scripts/test-makefile-root.sh")
+    for contract in (
+        "35 target/authority cases",
+        "literal hostile Python path",
+        "MAKEFILE_LIST must not be overridden",
+        "MAKEFILES must be empty",
+        "MAKEFLAGS must not be overridden",
+        "--ignore-errors",
+    ):
+        require(contract in authority_test, f"Make authority harness must include {contract!r}")
 
     test_script = read_text("scripts/test_ios.sh")
     require('ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"' in test_script, "iOS test script must resolve the repository root")
@@ -601,6 +627,10 @@ def check_docs_plans():
     require(MOTION_FAILURE_RESET_PLAN in plans, f"{MOTION_FAILURE_RESET_PLAN.relative_to(ROOT)} must be present")
     require(BLANK_PROMPT_FILTER_PLAN in plans, f"{BLANK_PROMPT_FILTER_PLAN.relative_to(ROOT)} must be present")
     require(MAKE_ROOT_PROTECTION_PLAN in plans, f"{MAKE_ROOT_PROTECTION_PLAN.relative_to(ROOT)} must be present")
+    require(
+        MAKE_AUTHORITY_ISOLATION_PLAN in plans,
+        f"{MAKE_AUTHORITY_ISOLATION_PLAN.relative_to(ROOT)} must be present",
+    )
     require(MOTION_DEVICE_CHECKLIST_PLAN in plans, f"{MOTION_DEVICE_CHECKLIST_PLAN.relative_to(ROOT)} must be present")
     require(STALE_MOTION_CALLBACK_PLAN in plans, f"{STALE_MOTION_CALLBACK_PLAN.relative_to(ROOT)} must be present")
     require(

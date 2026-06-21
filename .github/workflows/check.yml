@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Run repository verification
-        run: make static
+        run: /usr/bin/make static
 
   ios:
     runs-on: macos-15
@@ -43,4 +43,4 @@ jobs:
         with:
           persist-credentials: false
       - name: Run iOS verification
-        run: make check
+        run: /usr/bin/make check

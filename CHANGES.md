@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-21
+
+- Isolated Make verification authority from caller-controlled roots, shells,
+  startup files, Makefile lists, execution modes, and executable Make syntax.
+- Added a hostile-path authority harness and invoked hosted verification
+  through the system Make executable.
+
 ## 2026-06-19
 
 - Canonicalized prompt comparison without rewriting display values, preventing

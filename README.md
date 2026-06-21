@@ -46,7 +46,14 @@ the build and offline prompt behavior but cannot reproduce real tilting.
   plans.
 - `make test` runs the `UpDown` XCTest scheme when `xcodebuild` is available.
 - `make build` builds the simulator app without code signing.
+- `make root-test` exercises repository-root, shell, Python, startup-file, and
+  execution-mode authority boundaries from hostile external paths.
 - `make check` runs portable contracts everywhere and real XCTest on macOS.
+
+Repository verification derives its root and shell from the reviewed
+`Makefile`, rejects injected startup files and non-executing/error-ignoring Make
+modes, and accepts only a literal `PYTHON` executable path. Run the public
+targets with `/usr/bin/make`; hosted checks do the same.
 
 GitHub Actions runs static contracts on Python 3.10, 3.12, and 3.14 on Ubuntu
 24.04 and runs the full Xcode test scheme on macOS 15. Workflow permissions are
@@ -127,6 +134,8 @@ results do not satisfy it.
 - `UpDownTests` contains XCTest coverage for prompt selection.
 - `UpDown.xcodeproj` contains the shared build/test scheme.
 - `scripts/check_ios_contracts.py` provides portable repository contracts.
+- `scripts/test-makefile-root.sh` verifies Make execution authority in hostile
+  paths and caller environments.
 - `docs/plans`, `CHANGES.md`, `SECURITY.md`, and `VISION.md` record maintenance
   decisions and project scope.
 - `docs/plans/2026-06-10-no-immediate-prompt-repeat.md` records the completed
