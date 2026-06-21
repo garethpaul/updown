@@ -6,6 +6,11 @@
   shell state, execution modes, root overrides, and executable expressions.
 - Added adversarial Make authority coverage and pinned hosted verification to
   `/usr/bin/make` without changing Swift or CoreMotion behavior.
+- Rejected later single-colon recipe replacement, embedded reviewed root and
+  literal Python/Xcode values before later non-override target assignments,
+  pinned the public recipe shell, and removed PATH control of Xcode helpers.
+- Narrowed the local trust boundary: GNU Make `override` directives, startup
+  parse code, and caller-selected Python executable resolution remain outside.
 
 ## 2026-06-19
 
