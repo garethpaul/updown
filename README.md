@@ -46,12 +46,15 @@ the build and offline prompt behavior but cannot reproduce real tilting.
   plans.
 - `make test` runs the `UpDown` XCTest scheme when `xcodebuild` is available.
 - `make build` builds the simulator app without code signing.
-- `make check` runs portable contracts everywhere and real XCTest on macOS.
+- `make check` runs portable contracts, adversarial Make authority tests, and
+  the unsigned simulator build everywhere possible, plus real XCTest on macOS.
 
-GitHub Actions runs static contracts on Python 3.10, 3.12, and 3.14 on Ubuntu
-24.04 and runs the full Xcode test scheme on macOS 15. Workflow permissions are
+GitHub Actions runs the portable full gate on Python 3.10, 3.12, and 3.14 on
+Ubuntu 24.04 and runs the full Xcode test scheme on macOS 15. Workflow permissions are
 read-only, superseded runs are cancelled, and action revisions are pinned to
 immutable commits. Neither checkout step persists the workflow credential.
+The workflow invokes `/usr/bin/make` so repository verification cannot be
+redirected through a caller-controlled executable.
 CodeQL analyzes actions and Python without a build, and analyzes Swift through
 an explicit unsigned single-architecture `UpDown` app-target build; XCTest
 remains in the canonical macOS Check job.

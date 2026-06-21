@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-21
+
+- Isolated repository verification from caller-controlled Make startup files,
+  shell state, execution modes, root overrides, and executable expressions.
+- Added adversarial Make authority coverage and pinned hosted verification to
+  `/usr/bin/make` without changing Swift or CoreMotion behavior.
+
 ## 2026-06-19
 
 - Canonicalized prompt comparison without rewriting display values, preventing
