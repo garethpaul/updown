@@ -25,6 +25,7 @@ MAKE_ROOT_PROTECTION_PLAN = DOCS_PLANS / "2026-06-14-make-root-override-protecti
 MOTION_DEVICE_CHECKLIST_PLAN = DOCS_PLANS / "2026-06-14-motion-device-verification-checklist.md"
 STALE_MOTION_CALLBACK_PLAN = DOCS_PLANS / "2026-06-16-stale-motion-callback-guard.md"
 DISAPPEARANCE_IDLE_RESET_PLAN = DOCS_PLANS / "2026-06-16-disappearance-idle-reset.md"
+MAKE_AUTHORITY_PLAN = DOCS_PLANS / "2026-06-21-make-authority-isolation.md"
 RETIRED_SDKS = ("Crashlytics.framework", "Fabric.framework", "MoPub.framework")
 
 
@@ -519,8 +520,7 @@ def check_hosted_verification():
         'python-version: ["3.10", "3.12", "3.14"]',
         checkout_action,
         "persist-credentials: false",
-        "run: make static",
-        "run: make check",
+        "run: /usr/bin/make check",
     ):
         require(contract in workflow, f"hosted verification must include {contract!r}")
     require("@v" not in workflow, "hosted actions must use immutable commits")
@@ -531,20 +531,28 @@ def check_hosted_verification():
         "each checkout step must disable credential persistence in its own with block",
     )
     require(workflow.count("persist-credentials:") == 2, "credential persistence must be configured exactly twice")
+    require(workflow.count("run: /usr/bin/make check") == 2, "both hosted jobs must run the full repository gate")
     require("persist-credentials: true" not in workflow, "hosted checkout credentials must not persist")
     require("ubuntu-latest" not in workflow, "hosted static verification must use a fixed Ubuntu runner")
     require("group: check-${{ github.workflow }}-${{ github.ref }}" in workflow, "workflow concurrency must include workflow and ref")
 
     makefile = read_text("Makefile")
     makefile_lines = set(makefile.splitlines())
-    require(
-        "override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))" in makefile_lines,
-        "Makefile must protect commands rooted at the repository",
-    )
+    require("override PYTHON := $(value PYTHON)" in makefile_lines, "Makefile must freeze the literal Python value")
+    require("override SHELL := /bin/sh" in makefile_lines, "Makefile must protect its recipe shell")
+    require("override .SHELLFLAGS := -c" in makefile_lines, "Makefile must protect its shell flags")
+    require("override MAKEFILES :=" in makefile_lines, "Makefile must clear inherited startup files")
+    require("override ROOT := $(shell path=" in makefile, "Makefile must derive the canonical repository root")
     require("PYTHON ?= python3" in makefile_lines, "Makefile must preserve the Python command override")
-    require('"$(ROOT)/scripts/check_ios_contracts.py"' in makefile, "Makefile must use the rooted checker path")
-    require('"$(ROOT)/scripts/test_ios.sh"' in makefile, "Makefile must use the rooted iOS test path")
-    require('cd "$(ROOT)" && xcodebuild' in makefile, "Makefile must run builds from the repository root")
+    require('"$$PYTHON" "$$ROOT/scripts/check_ios_contracts.py"' in makefile, "Makefile must use protected checker values")
+    require('/bin/sh "$$ROOT/scripts/test_ios.sh"' in makefile, "Makefile must use the protected iOS test path")
+    require('cd "$$ROOT" && xcodebuild' in makefile, "Makefile must run builds from the protected repository root")
+    require('"$$ROOT/scripts/test-makefile-root.sh"' in makefile, "Makefile must run authority regressions")
+
+    authority_script = read_text("scripts/test-makefile-root.sh")
+    require('AUTHORITY_PATH="$TEMP_ROOT/no-platform-tools"' in authority_script, "authority tests must isolate platform tools")
+    require('PATH="$AUTHORITY_PATH"' in authority_script, "authority cases must use the isolated tool path")
+    require("authority case failed:" in authority_script, "authority failures must identify the target and mode")
 
     test_script = read_text("scripts/test_ios.sh")
     require('ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"' in test_script, "iOS test script must resolve the repository root")
@@ -607,6 +615,7 @@ def check_docs_plans():
         DISAPPEARANCE_IDLE_RESET_PLAN in plans,
         f"{DISAPPEARANCE_IDLE_RESET_PLAN.relative_to(ROOT)} must be present",
     )
+    require(MAKE_AUTHORITY_PLAN in plans, f"{MAKE_AUTHORITY_PLAN.relative_to(ROOT)} must be present")
     require(
         "check_stale_motion_callback_contracts" in registered_main_checks(),
         "stale motion callback contracts must remain registered",
