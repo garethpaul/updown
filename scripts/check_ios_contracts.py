@@ -549,6 +549,11 @@ def check_hosted_verification():
     require('cd "$$ROOT" && xcodebuild' in makefile, "Makefile must run builds from the protected repository root")
     require('"$$ROOT/scripts/test-makefile-root.sh"' in makefile, "Makefile must run authority regressions")
 
+    authority_script = read_text("scripts/test-makefile-root.sh")
+    require('AUTHORITY_PATH="$TEMP_ROOT/no-platform-tools"' in authority_script, "authority tests must isolate platform tools")
+    require('PATH="$AUTHORITY_PATH"' in authority_script, "authority cases must use the isolated tool path")
+    require("authority case failed:" in authority_script, "authority failures must identify the target and mode")
+
     test_script = read_text("scripts/test_ios.sh")
     require('ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"' in test_script, "iOS test script must resolve the repository root")
     require('cd "$ROOT"' in test_script, "iOS test script must run from the repository root")

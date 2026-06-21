@@ -21,6 +21,9 @@ controlled shell, startup-file, execution-mode, and Python expression state.
   command and environment Make-syntax rejection, command and environment
   `MAKEFILE_LIST` rejection, startup boundaries, caller `MAKEFLAGS`, and ten
   non-executing or error-ignoring modes.
+- Synthetic authority cases deliberately hide platform tools such as
+  `xcodebuild`, keeping their results deterministic on Linux and macOS while
+  the ordinary `make check` path still runs available platform validation.
 
 ## Scope Boundary
 
