@@ -49,12 +49,25 @@ the build and offline prompt behavior but cannot reproduce real tilting.
 - `make check` runs portable contracts, adversarial Make authority tests, and
   the unsigned simulator build everywhere possible, plus real XCTest on macOS.
 
+The local verification boundary assumes the checked-in Makefile is the sole
+caller program. Public aliases reject later single-colon recipe replacement,
+embed the reviewed root plus literal `PYTHON` and `XCODEBUILD` selections before
+later non-override target variables can alter them, and pin `/bin/sh -c` against
+later non-override shell assignments. The default Xcode command and iOS helper
+tools use absolute system paths. GNU Make `override` directives remain outside
+the local trust boundary, as do startup files: startup files are parsed before
+repository checks and may execute caller code first. The default interpreter is
+`/usr/bin/python3`; hosted matrices pass the absolute setup-python interpreter.
+absolute Python executable selection is baked into recipes and isolated Python
+startup (`-I -B`) rejects `PATH`, `PYTHONPATH`, user-site, and `sitecustomize`
+substitution.
+
 GitHub Actions runs the portable full gate on Python 3.10, 3.12, and 3.14 on
 Ubuntu 24.04 and runs the full Xcode test scheme on macOS 15. Workflow permissions are
 read-only, superseded runs are cancelled, and action revisions are pinned to
 immutable commits. Neither checkout step persists the workflow credential.
-The workflow invokes `/usr/bin/make` so repository verification cannot be
-redirected through a caller-controlled executable.
+The workflow invokes `/usr/bin/make`; its checked-in invocation supplies no
+additional makefiles or executable overrides.
 CodeQL analyzes actions and Python without a build, and analyzes Swift through
 an explicit unsigned single-architecture `UpDown` app-target build; XCTest
 remains in the canonical macOS Check job.

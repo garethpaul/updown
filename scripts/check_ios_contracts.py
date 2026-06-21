@@ -538,28 +538,53 @@ def check_hosted_verification():
 
     makefile = read_text("Makefile")
     makefile_lines = set(makefile.splitlines())
-    require("override PYTHON := $(value PYTHON)" in makefile_lines, "Makefile must freeze the literal Python value")
+    require("override PYTHON := /usr/bin/python3" in makefile_lines, "Makefile must use the fixed default Python interpreter")
+    require("override XCODEBUILD := $(value XCODEBUILD)" in makefile_lines, "Makefile must freeze the literal Xcode value")
     require("override SHELL := /bin/sh" in makefile_lines, "Makefile must protect its recipe shell")
     require("override .SHELLFLAGS := -c" in makefile_lines, "Makefile must protect its shell flags")
+    require("build check lint root-test static test verify __repository-make-authority: override SHELL := /bin/sh" in makefile_lines, "Makefile must pin the public target shell")
+    require("build check lint root-test static test verify __repository-make-authority: override .SHELLFLAGS := -c" in makefile_lines, "Makefile must pin public target shell flags")
     require("override MAKEFILES :=" in makefile_lines, "Makefile must clear inherited startup files")
     require("override ROOT := $(shell path=" in makefile, "Makefile must derive the canonical repository root")
-    require("PYTHON ?= python3" in makefile_lines, "Makefile must preserve the Python command override")
-    require('"$$PYTHON" "$$ROOT/scripts/check_ios_contracts.py"' in makefile, "Makefile must use protected checker values")
-    require('/bin/sh "$$ROOT/scripts/test_ios.sh"' in makefile, "Makefile must use the protected iOS test path")
-    require('cd "$$ROOT" && xcodebuild' in makefile, "Makefile must run builds from the protected repository root")
-    require('"$$ROOT/scripts/test-makefile-root.sh"' in makefile, "Makefile must run authority regressions")
+    require("scripts/run-python.sh" in makefile, "Makefile must route Python through the isolated repository launcher")
+    require("override REPOSITORY_ROOT_LITERAL :=" in makefile, "Makefile must embed its reviewed root")
+    require("override REPOSITORY_PYTHON_LITERAL :=" in makefile, "Makefile must embed its reviewed Python command")
+    require("override REPOSITORY_XCODEBUILD_LITERAL :=" in makefile, "Makefile must embed its reviewed Xcode command")
+    require("static::" in makefile, "Makefile public recipes must use double-colon rules")
+    require("REPOSITORY_PYTHON='$(REPOSITORY_PYTHON_LITERAL)' '$(REPOSITORY_ROOT_LITERAL)/scripts/run-python.sh'" in makefile, "Makefile must embed checker values")
+    require("-I -B" in read_text("scripts/run-python.sh"), "Python launcher must isolate startup state")
+    require("/bin/bash '$(REPOSITORY_ROOT_LITERAL)/scripts/test_ios.sh' '$(REPOSITORY_XCODEBUILD_LITERAL)'" in makefile, "Makefile must embed the iOS test command")
+    require("cd '$(REPOSITORY_ROOT_LITERAL)' && '$(REPOSITORY_XCODEBUILD_LITERAL)'" in makefile, "Makefile must embed the Xcode build command")
+    require("/bin/sh '$(REPOSITORY_ROOT_LITERAL)/scripts/test-makefile-root.sh'" in makefile, "Makefile must embed authority regressions")
+    require("test:: static" in makefile, "Makefile must preserve test-to-static ordering")
+    require("verify:: root-test static test build" in makefile, "Makefile must preserve the full build gate")
 
     authority_script = read_text("scripts/test-makefile-root.sh")
-    require('AUTHORITY_PATH="$TEMP_ROOT/no-platform-tools"' in authority_script, "authority tests must isolate platform tools")
-    require('PATH="$AUTHORITY_PATH"' in authority_script, "authority cases must use the isolated tool path")
+    require('EXPLICIT_XCODE="$TEMP_ROOT/explicit xcodebuild"' in authority_script, "authority tests must use a deterministic explicit Xcode fixture")
+    require('PATH_XCODE="$TEMP_ROOT/xcodebuild"' in authority_script, "authority tests must probe PATH Xcode shadowing")
+    require("6 raw Make-syntax controls" in authority_script, "authority tests must cover Python, root, and Xcode Make syntax")
+    require("7 later recipe-replacement rejections" in authority_script, "authority tests must reject all public recipe replacements")
     require("authority case failed:" in authority_script, "authority failures must identify the target and mode")
 
     test_script = read_text("scripts/test_ios.sh")
     require('ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"' in test_script, "iOS test script must resolve the repository root")
     require('cd "$ROOT"' in test_script, "iOS test script must run from the repository root")
-    require("xcrun simctl list devices available -j" in test_script, "iOS tests must discover available simulators")
-    require("xcrun simctl create UpDown-CI" in test_script, "iOS tests must create a simulator when only a runtime is installed")
+    require('XCODEBUILD="${1:-/usr/bin/xcodebuild}"' in test_script, "iOS tests must accept the reviewed Xcode command")
+    require("/usr/bin/xcrun simctl list devices available -j" in test_script, "iOS tests must discover available simulators through the system tool")
+    require("/usr/bin/xcrun simctl create UpDown-CI" in test_script, "iOS tests must create a simulator through the system tool")
+    require("/usr/bin/python3 -c" in test_script, "iOS tests must parse simulator JSON with the system Python")
+    require('"$XCODEBUILD" \\' in test_script, "iOS tests must run the reviewed Xcode command")
     require("Designed for [iPad,iPhone]" in test_script, "iOS tests must retain an Apple Silicon fallback destination")
+
+    authority_docs = "\n".join(read_text(path) for path in ("README.md", "CHANGES.md", str(MAKE_AUTHORITY_PLAN.relative_to(ROOT))))
+    for phrase in (
+        "non-override",
+        "GNU Make `override` directives",
+        "isolated Python startup",
+        "startup files are parsed before repository checks",
+        "absolute Python executable selection",
+    ):
+        require(phrase in authority_docs, f"Make authority documentation must state {phrase!r}")
 
 
 def check_codeql_verification():
