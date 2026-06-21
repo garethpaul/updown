@@ -14,6 +14,8 @@ controlled shell, startup-file, execution-mode, and Python expression state.
 - Public aliases use double-colon rules, embed reviewed root plus literal
   Python/Xcode command values before later non-override target variables can
   alter them, and pin `/bin/sh -c` against later non-override shell assignments.
+- The default interpreter is `/usr/bin/python3`; hosted matrices pass an
+  absolute setup-python interpreter through a repository-owned `-I -B` launcher.
 - Added an adversarial authority harness and pinned CI to `/usr/bin/make`.
 
 ## Verification
@@ -28,8 +30,8 @@ controlled shell, startup-file, execution-mode, and Python expression state.
   `xcodebuild`, keeping their results deterministic on Linux and macOS while
   the ordinary `make check` path still runs available platform validation.
 - Regressions reject all seven later single-colon recipe replacements, protect
-  ordinary later root/Python/Xcode/shell variables, reject PATH-shadowed Xcode,
-  and retain explicit executable controls for the caller-program boundary.
+  ordinary later root/Python/Xcode/shell variables, reject PATH-shadowed Python
+  and Xcode, and prove hostile `sitecustomize.py` cannot replace validation.
 
 ## Scope Boundary
 
@@ -37,8 +39,8 @@ This is a local checked-in-Makefile boundary, not a sandbox for caller-supplied
 Make programs. GNU Make startup files are parsed before repository checks, so
 their parse-time code remains outside the local trust boundary. Later makefiles
 using GNU Make `override` directives likewise remain outside the local trust
-boundary. Python executable selection, including PATH resolution of the default
-`python3`, is caller-controlled rather than authenticated by this repository.
+boundary. absolute Python executable selection is baked into recipes and uses
+isolated Python startup; explicit alternate interpreters remain caller authority.
 
 Within that boundary, later non-override assignments cannot redirect the
 reviewed root, Python command, Xcode command, or recipe shell; later single-colon

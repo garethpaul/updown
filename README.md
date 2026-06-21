@@ -56,9 +56,11 @@ later non-override target variables can alter them, and pin `/bin/sh -c` against
 later non-override shell assignments. The default Xcode command and iOS helper
 tools use absolute system paths. GNU Make `override` directives remain outside
 the local trust boundary, as do startup files: startup files are parsed before
-repository checks and may execute caller code first. Python executable selection,
-including PATH resolution of the default `python3`, is caller-controlled rather
-than authenticated by the repository.
+repository checks and may execute caller code first. The default interpreter is
+`/usr/bin/python3`; hosted matrices pass the absolute setup-python interpreter.
+absolute Python executable selection is baked into recipes and isolated Python
+startup (`-I -B`) rejects `PATH`, `PYTHONPATH`, user-site, and `sitecustomize`
+substitution.
 
 GitHub Actions runs the portable full gate on Python 3.10, 3.12, and 3.14 on
 Ubuntu 24.04 and runs the full Xcode test scheme on macOS 15. Workflow permissions are

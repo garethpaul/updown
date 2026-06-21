@@ -538,7 +538,7 @@ def check_hosted_verification():
 
     makefile = read_text("Makefile")
     makefile_lines = set(makefile.splitlines())
-    require("override PYTHON := $(value PYTHON)" in makefile_lines, "Makefile must freeze the literal Python value")
+    require("override PYTHON := /usr/bin/python3" in makefile_lines, "Makefile must use the fixed default Python interpreter")
     require("override XCODEBUILD := $(value XCODEBUILD)" in makefile_lines, "Makefile must freeze the literal Xcode value")
     require("override SHELL := /bin/sh" in makefile_lines, "Makefile must protect its recipe shell")
     require("override .SHELLFLAGS := -c" in makefile_lines, "Makefile must protect its shell flags")
@@ -546,12 +546,13 @@ def check_hosted_verification():
     require("build check lint root-test static test verify __repository-make-authority: override .SHELLFLAGS := -c" in makefile_lines, "Makefile must pin public target shell flags")
     require("override MAKEFILES :=" in makefile_lines, "Makefile must clear inherited startup files")
     require("override ROOT := $(shell path=" in makefile, "Makefile must derive the canonical repository root")
-    require("PYTHON ?= python3" in makefile_lines, "Makefile must preserve the Python command override")
+    require("scripts/run-python.sh" in makefile, "Makefile must route Python through the isolated repository launcher")
     require("override REPOSITORY_ROOT_LITERAL :=" in makefile, "Makefile must embed its reviewed root")
     require("override REPOSITORY_PYTHON_LITERAL :=" in makefile, "Makefile must embed its reviewed Python command")
     require("override REPOSITORY_XCODEBUILD_LITERAL :=" in makefile, "Makefile must embed its reviewed Xcode command")
     require("static::" in makefile, "Makefile public recipes must use double-colon rules")
-    require("'$(REPOSITORY_PYTHON_LITERAL)' '$(REPOSITORY_ROOT_LITERAL)/scripts/check_ios_contracts.py'" in makefile, "Makefile must embed checker values")
+    require("REPOSITORY_PYTHON='$(REPOSITORY_PYTHON_LITERAL)' '$(REPOSITORY_ROOT_LITERAL)/scripts/run-python.sh'" in makefile, "Makefile must embed checker values")
+    require("-I -B" in read_text("scripts/run-python.sh"), "Python launcher must isolate startup state")
     require("/bin/bash '$(REPOSITORY_ROOT_LITERAL)/scripts/test_ios.sh' '$(REPOSITORY_XCODEBUILD_LITERAL)'" in makefile, "Makefile must embed the iOS test command")
     require("cd '$(REPOSITORY_ROOT_LITERAL)' && '$(REPOSITORY_XCODEBUILD_LITERAL)'" in makefile, "Makefile must embed the Xcode build command")
     require("/bin/sh '$(REPOSITORY_ROOT_LITERAL)/scripts/test-makefile-root.sh'" in makefile, "Makefile must embed authority regressions")
@@ -579,9 +580,9 @@ def check_hosted_verification():
     for phrase in (
         "non-override",
         "GNU Make `override` directives",
-        "outside the local trust boundary",
+        "isolated Python startup",
         "startup files are parsed before repository checks",
-        "Python executable selection",
+        "absolute Python executable selection",
     ):
         require(phrase in authority_docs, f"Make authority documentation must state {phrase!r}")
 

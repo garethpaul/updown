@@ -14,6 +14,7 @@ printf '%s|%s|%s\n' "$PWD" "$0" "$*" >> "$UPDOWN_COMMAND_LOG"
 EOF
 chmod +x "$FAKE_PYTHON"
 for script in test-makefile-root.sh check_ios_contracts.py test_ios.sh; do cp "$FAKE_PYTHON" "$CHECKOUT/scripts/$script"; done
+cp "$ROOT_DIR/scripts/run-python.sh" "$CHECKOUT/scripts/run-python.sh"; chmod +x "$CHECKOUT/scripts/run-python.sh"
 FAKE_XCODEBUILD="$TEMP_ROOT/trusted xcodebuild"; cat >"$FAKE_XCODEBUILD" <<'EOF'
 #!/bin/sh
 printf '%s|%s|%s\n' "$PWD" "$0" "$*" >> "$UPDOWN_COMMAND_LOG"
@@ -96,8 +97,9 @@ rm -f "$LATER_SHELL_LOG"
 [ -s "$LATER_SHELL_LOG" ]
 PATH_PYTHON="$TEMP_ROOT/python3"; PATH_PYTHON_LOG="$TEMP_ROOT/path-python.log"; cp "$FAKE_PYTHON" "$PATH_PYTHON"
 rm -f "$PATH_PYTHON_LOG"
-(cd "$CONTROL_DIR"&&PATH="$TEMP_ROOT:/usr/bin:/bin" UPDOWN_COMMAND_LOG="$PATH_PYTHON_LOG" /usr/bin/make --no-print-directory -f "$MAKEFILE" static) >"$TEMP_ROOT/path-python" 2>&1
-[ -s "$PATH_PYTHON_LOG" ]
+if (cd "$CONTROL_DIR"&&PATH="$TEMP_ROOT:/usr/bin:/bin" UPDOWN_COMMAND_LOG="$PATH_PYTHON_LOG" /usr/bin/make --no-print-directory -f "$MAKEFILE" static) >"$TEMP_ROOT/path-python" 2>&1; then exit 1; fi
+[ ! -e "$PATH_PYTHON_LOG" ]
+SITE_DIR="$TEMP_ROOT/site"; SITE_MARKER="$TEMP_ROOT/sitecustomize-ran"; mkdir -p "$SITE_DIR"; printf '%s\n' "import os; open('$SITE_MARKER', 'w').close(); os._exit(0)" >"$SITE_DIR/sitecustomize.py"; (cd "$ROOT_DIR"&&PYTHONPATH="$SITE_DIR" /usr/bin/make --no-print-directory static PYTHON=/usr/bin/python3 XCODEBUILD=/usr/bin/xcodebuild) >"$TEMP_ROOT/sitecustomize" 2>&1; [ ! -e "$SITE_MARKER" ]
 PATH_XCODE="$TEMP_ROOT/xcodebuild"; PATH_XCODE_LOG="$TEMP_ROOT/path-xcode.log"; cat >"$PATH_XCODE" <<'SCRIPT'
 #!/bin/sh
 printf '%s\n' "$*" >> "$UPDOWN_PATH_XCODE_LOG"
@@ -119,4 +121,4 @@ rm -f "$EXPLICIT_XCODE_LOG" "$TARGET_XCODE_LOG"
 [ ! -e "$TARGET_XCODE_LOG" ]
 if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" /usr/bin/make --no-print-directory -f "$MAKEFILE" MAKEFLAGS=-n check) >"$TEMP_ROOT/flags" 2>&1; then exit 1; fi; grep -Fq 'MAKEFLAGS must not be overridden' "$TEMP_ROOT/flags"
 for flag in -n --just-print --dry-run --recon -t --touch -q --question -i --ignore-errors; do if (cd "$CONTROL_DIR"&&PATH="$AUTHORITY_PATH" /usr/bin/make "$flag" --no-print-directory -f "$MAKEFILE" check) >"$TEMP_ROOT/flag" 2>&1; then exit 1; fi; grep -Fq 'non-executing or error-ignoring MAKEFLAGS are not supported' "$TEMP_ROOT/flag"; done
-printf '%s\n' 'Make authority tests passed: 35 target/authority cases, literal hostile Python path, 6 raw Make-syntax controls, 2 MAKEFILE_LIST rejections, 2 startup-boundary cases, 7 later recipe-replacement rejections, later root/Python/Xcode and non-override shell protection, override/startup/PATH-Python boundary controls, PATH-Xcode rejection, caller MAKEFLAGS rejection, and 10 mode rejections'
+printf '%s\n' 'Make authority tests passed: 35 target/authority cases, literal hostile Python path, 6 raw Make-syntax controls, 2 MAKEFILE_LIST rejections, 2 startup-boundary cases, 7 later recipe-replacement rejections, later root/Python/Xcode and non-override shell protection, override/startup boundary controls, PATH-Python and PATH-Xcode rejection, isolated Python startup, caller MAKEFLAGS rejection, and 10 mode rejections'
