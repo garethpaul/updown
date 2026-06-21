@@ -565,6 +565,7 @@ def check_hosted_verification():
     for contract in (
         "35 target/authority cases",
         "literal hostile Python path",
+        'FAKE_BIN="$TEMP_ROOT/fake-bin"',
         "MAKEFILE_LIST must not be overridden",
         "MAKEFILES must be empty",
         "MAKEFLAGS must not be overridden",
