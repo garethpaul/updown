@@ -89,6 +89,22 @@ struct GameDisplayState {
     }
 }
 
+struct GameTextStyle {
+    static let basePointSize: CGFloat = 72
+    static let maximumPointSize: CGFloat = 120
+
+    static func apply(to label: UILabel) {
+        let baseFont = UIFont.systemFont(ofSize: basePointSize, weight: .bold)
+        label.font = UIFontMetrics(forTextStyle: .largeTitle).scaledFont(
+            for: baseFont,
+            maximumPointSize: maximumPointSize
+        )
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+    }
+}
+
 final class ViewController: UIViewController {
     private let motionManager = CMMotionManager()
     private let motionGate = MotionHysteresisGate()
@@ -101,6 +117,7 @@ final class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        GameTextStyle.apply(to: gameText)
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(applicationWillResignActive),

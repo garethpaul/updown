@@ -91,6 +91,9 @@ Leaving the game view clears any visible prompt and returns the display to idle
 after motion callbacks are invalidated and updates stop.
 Moving the app out of the active state performs the same invalidation and idle
 reset; returning to an active, visible game view starts one fresh session.
+The full-screen clue label preserves its 72-point bold baseline while using
+`UIFontMetrics` for capped Dynamic Type scaling. It allows unlimited lines and
+word wrapping so larger text and longer offline clues are not tail-truncated.
 
 ## Privacy and Security
 
@@ -110,7 +113,8 @@ reset; returning to an active, visible game view starts one fresh session.
   checklist below; no completed device run is claimed yet.
 - The bundled prompt list is intentionally small and English-only.
 - The UI preserves the original single-screen prototype rather than adding
-  scoring, categories, accessibility customization, or multiplayer state.
+  scoring, categories, broader accessibility customization, or multiplayer
+  state.
 
 ## Physical-Device Motion Checklist
 
