@@ -1,5 +1,26 @@
 # Changes
 
+## 2026-06-25 09:42 PDT
+
+- **Priority:** P2 readable one-screen game text.
+- **Summary:** Added capped Dynamic Type scaling and multiline word wrapping to
+  the full-screen idle and clue label.
+- **Work:** Preserved the existing 72-point bold baseline, scaled it with
+  `UIFontMetrics` up to 120 points, enabled automatic content-size updates, and
+  removed single-line tail truncation.
+- **Threads:** No delegated threads were used.
+- **Files:** Updated the game text style, XCTest and portable contracts,
+  accessibility guidance, and a completed plan.
+- **Validation:** The portable contract failed before the style helper existed;
+  a hostile mutation removing multiline support is rejected, the 10 static
+  checks and all 35 Make authority cases pass through `make check`, and
+  `git diff --check` passes. Local XCTest/build skip because `xcodebuild` is
+  unavailable; hosted Xcode and CodeQL remain merge gates.
+- **Findings:** The storyboard label was fixed at 72 points, one line, and tail
+  truncation despite occupying the entire screen.
+- **Blockers:** Physical-device motion behavior and extreme accessibility sizes
+  still require manual device verification.
+
 ## 2026-06-21
 
 - Isolated repository verification from caller-controlled Make startup files,

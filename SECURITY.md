@@ -48,6 +48,8 @@ Helpful reports include:
 - Leaving the game view clears visible prompt state after motion callbacks are
   invalidated and updates stop, keeping off-screen logical and visible state
   synchronized.
+- The local clue label uses capped Dynamic Type scaling and word wrapping so
+  accessibility text sizes do not silently tail-truncate prompts.
 
 ## Mobile Privacy Notes
 

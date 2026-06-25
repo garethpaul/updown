@@ -1,4 +1,5 @@
 import XCTest
+import UIKit
 @testable import UpDown
 
 final class PromptProviderTests: XCTestCase {
@@ -255,5 +256,18 @@ final class GameDisplayStateTests: XCTestCase {
 
         XCTAssertFalse(state.playing)
         XCTAssertEqual(state.text, GameDisplayState.idleText)
+    }
+}
+
+final class GameTextStyleTests: XCTestCase {
+    func testGameTextSupportsDynamicTypeAndWordWrapping() {
+        let label = UILabel()
+
+        GameTextStyle.apply(to: label)
+
+        XCTAssertTrue(label.adjustsFontForContentSizeCategory)
+        XCTAssertEqual(label.numberOfLines, 0)
+        XCTAssertEqual(label.lineBreakMode, .byWordWrapping)
+        XCTAssertLessThanOrEqual(label.font.pointSize, GameTextStyle.maximumPointSize)
     }
 }

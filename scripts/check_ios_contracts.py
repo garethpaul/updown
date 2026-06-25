@@ -26,6 +26,7 @@ MOTION_DEVICE_CHECKLIST_PLAN = DOCS_PLANS / "2026-06-14-motion-device-verificati
 STALE_MOTION_CALLBACK_PLAN = DOCS_PLANS / "2026-06-16-stale-motion-callback-guard.md"
 DISAPPEARANCE_IDLE_RESET_PLAN = DOCS_PLANS / "2026-06-16-disappearance-idle-reset.md"
 MAKE_AUTHORITY_PLAN = DOCS_PLANS / "2026-06-21-make-authority-isolation.md"
+GAME_TEXT_ACCESSIBILITY_PLAN = DOCS_PLANS / "2026-06-25-game-text-dynamic-type.md"
 RETIRED_SDKS = ("Crashlytics.framework", "Fabric.framework", "MoPub.framework")
 
 
@@ -505,6 +506,44 @@ def check_disappearance_idle_reset_contracts():
         require(phrase in read_text(relative_path), f"{relative_path} must document disappearance idle reset")
 
 
+def check_game_text_accessibility_contracts():
+    source = read_text("UpDown/ViewController.swift")
+    tests = read_text("UpDownTests/UpDownTests.swift")
+
+    contracts = (
+        "struct GameTextStyle",
+        "static let basePointSize: CGFloat = 72",
+        "static let maximumPointSize: CGFloat = 120",
+        "UIFontMetrics(forTextStyle: .largeTitle).scaledFont(",
+        "maximumPointSize: maximumPointSize",
+        "label.adjustsFontForContentSizeCategory = true",
+        "label.numberOfLines = 0",
+        "label.lineBreakMode = .byWordWrapping",
+        "GameTextStyle.apply(to: gameText)",
+    )
+    for contract in contracts:
+        require(contract in source, f"game text accessibility must include {contract}")
+
+    test_contracts = (
+        "final class GameTextStyleTests: XCTestCase",
+        "GameTextStyle.apply(to: label)",
+        "XCTAssertTrue(label.adjustsFontForContentSizeCategory)",
+        "XCTAssertEqual(label.numberOfLines, 0)",
+        "XCTAssertEqual(label.lineBreakMode, .byWordWrapping)",
+    )
+    for contract in test_contracts:
+        require(contract in tests, f"XCTest must cover accessible game text with {contract}")
+
+    documentation = {
+        "README.md": "Dynamic Type",
+        "SECURITY.md": "Dynamic Type",
+        "VISION.md": "Dynamic Type",
+        "CHANGES.md": "Dynamic Type",
+    }
+    for relative_path, phrase in documentation.items():
+        require(phrase in read_text(relative_path), f"{relative_path} must document {phrase}")
+
+
 def check_hosted_verification():
     workflow = read_text(".github/workflows/check.yml")
     checkout_action = "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10"
@@ -642,6 +681,10 @@ def check_docs_plans():
     )
     require(MAKE_AUTHORITY_PLAN in plans, f"{MAKE_AUTHORITY_PLAN.relative_to(ROOT)} must be present")
     require(
+        GAME_TEXT_ACCESSIBILITY_PLAN in plans,
+        f"{GAME_TEXT_ACCESSIBILITY_PLAN.relative_to(ROOT)} must be present",
+    )
+    require(
         "check_stale_motion_callback_contracts" in registered_main_checks(),
         "stale motion callback contracts must remain registered",
     )
@@ -663,6 +706,7 @@ def main():
         check_motion_lifecycle_contracts,
         check_stale_motion_callback_contracts,
         check_disappearance_idle_reset_contracts,
+        check_game_text_accessibility_contracts,
         check_hosted_verification,
         check_codeql_verification,
         check_docs_plans,

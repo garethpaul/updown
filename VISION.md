@@ -30,11 +30,14 @@ Priority:
   optional
 - Keep physical-device threshold and lifecycle verification notes tied to the
   exact source ranges without claiming an unexecuted device run
+- Preserve the full-screen visual baseline while supporting capped Dynamic Type
+  and word-wrapped clues
 
 Next priorities:
 
 - Expand prompt categories without adding network or tracking dependencies
-- Improve accessibility while preserving the one-screen game flow
+- Extend accessibility beyond Dynamic Type while preserving the one-screen
+  game flow
 
 Contribution rules:
 
