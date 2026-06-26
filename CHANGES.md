@@ -14,8 +14,10 @@
   behavior documentation, project priorities, agent guidance, and a completed
   implementation plan.
 - **Validation:** The new portable contract first failed because the source had
-  no unavailable-device branch. Local static, Make, external-directory, diff,
-  hosted Xcode, and CodeQL results are recorded before merge.
+  no unavailable-device branch. All 10 static checks and 35 Make authority
+  cases pass through root and external-directory `make check`, and
+  `git diff --check` passes. Local XCTest/build skip because `xcodebuild` is
+  unavailable; hosted Xcode and CodeQL remain merge gates.
 - **Findings:** A device without CoreMotion support silently retained `Tilt the
   phone up for a word`, directing the user toward an action that could never
   start a prompt.

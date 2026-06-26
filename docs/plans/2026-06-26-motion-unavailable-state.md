@@ -49,4 +49,6 @@ Run root and external-directory `make check`, `git diff --check`, and hosted XCT
 transition. `beginMotionUpdates()` renders that state only when device motion
 is unavailable, while an already-active subscription still returns unchanged.
 The portable contract recorded the pre-fix failure; final local and hosted
-verification evidence is recorded in `CHANGES.md` before merge.
+verification evidence is recorded in `CHANGES.md`. Root and external-directory
+`make check` pass locally; native Xcode verification remains a hosted merge
+gate because this host has no `xcodebuild`.
