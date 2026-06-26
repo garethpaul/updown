@@ -1,5 +1,30 @@
 # Changes
 
+## 2026-06-26 04:05 PDT
+
+- **Priority:** P2 truthful unavailable-motion state.
+- **Summary:** Replaced the impossible tilt instruction with an explicit
+  `Motion unavailable` non-playing state when CoreMotion reports that device
+  motion is not available.
+- **Work:** Added a pure display-state transition, split hardware availability
+  from the existing active-session guard, rendered the unavailable state before
+  returning, and preserved lifecycle resets and callback-error handling.
+- **Threads:** No delegated threads were used.
+- **Files:** Updated the view controller, XCTest and portable contracts, public
+  behavior documentation, project priorities, agent guidance, and a completed
+  implementation plan.
+- **Validation:** The new portable contract first failed because the source had
+  no unavailable-device branch. Local static, Make, external-directory, diff,
+  hosted Xcode, and CodeQL results are recorded before merge.
+- **Findings:** A device without CoreMotion support silently retained `Tilt the
+  phone up for a word`, directing the user toward an action that could never
+  start a prompt.
+- **Blockers:** Local native XCTest/build require Xcode; simulator or physical
+  hardware verification remains necessary for the actual CoreMotion boundary.
+- **Next action:** Confirm the exact PR head on hosted Xcode and exercise the
+  unavailable path on a simulator or device configuration that reports no
+  device-motion support.
+
 ## 2026-06-25 09:42 PDT
 
 - **Priority:** P2 readable one-screen game text.

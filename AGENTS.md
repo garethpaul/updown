@@ -51,6 +51,8 @@
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 - See `docs/plans/2026-06-08-updown-baseline.md` for the current static verification baseline.
+- See `docs/plans/2026-06-26-motion-unavailable-state.md` for the explicit
+  unavailable-device state contract.
 
 ## Agent workflow
 
