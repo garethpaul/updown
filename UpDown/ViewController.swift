@@ -69,6 +69,7 @@ struct MotionLifecycleState {
 struct GameDisplayState {
     static let idleText = "Tilt the phone up for a word"
     static let unavailableText = "No prompts available"
+    static let motionUnavailableText = "Motion unavailable"
 
     private(set) var text = GameDisplayState.idleText
     private(set) var playing = false
@@ -84,6 +85,11 @@ struct GameDisplayState {
 
     mutating func showUnavailable() {
         text = Self.unavailableText
+        playing = false
+    }
+
+    mutating func showMotionUnavailable() {
+        text = Self.motionUnavailableText
         playing = false
     }
 
@@ -190,8 +196,12 @@ final class ViewController: UIViewController {
     }
 
     private func beginMotionUpdates() {
-        guard motionManager.isDeviceMotionAvailable,
-              !motionManager.isDeviceMotionActive else {
+        guard motionManager.isDeviceMotionAvailable else {
+            displayState.showMotionUnavailable()
+            renderDisplayState()
+            return
+        }
+        guard !motionManager.isDeviceMotionActive else {
             return
         }
 
