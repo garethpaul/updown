@@ -33,6 +33,8 @@ Priority:
   exact source ranges without claiming an unexecuted device run
 - Preserve the full-screen visual baseline while supporting capped Dynamic Type
   and word-wrapped clues
+- Announce prompt-state transitions to VoiceOver without repeated unavailable
+  retries
 
 Next priorities:
 

@@ -1,5 +1,23 @@
 # Changes
 
+## 2026-06-26 04:07 PDT
+
+- **Priority:** P2 accessible one-screen prompt transitions.
+- **Summary:** Announced prompt and unavailable transitions to VoiceOver while
+  preventing sustained tilt from continuously retrying unavailable inventory.
+- **Work:** Added explicit idle-state semantics, one-shot accessibility
+  announcements, a tilt instruction hint, three XCTest regressions, portable
+  contracts, project guidance, and a completed plan.
+- **Threads:** No open issue or pull request covered this focused accessibility
+  and state-transition gap.
+- **Validation:** The test-first portable contract failed before idle and
+  VoiceOver ownership existed. Focused static, native, root/external, and hosted
+  checks are required before merge.
+- **Blockers:** VoiceOver speech and physical CoreMotion thresholds still
+  require a device run; simulator XCTest cannot reproduce actual tilt input.
+- **Next action:** Review the exact branch head and merge only after hosted
+  checks pass.
+
 ## 2026-06-26 04:05 PDT
 
 - **Priority:** P2 truthful unavailable-motion state.

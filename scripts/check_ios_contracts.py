@@ -27,6 +27,7 @@ STALE_MOTION_CALLBACK_PLAN = DOCS_PLANS / "2026-06-16-stale-motion-callback-guar
 DISAPPEARANCE_IDLE_RESET_PLAN = DOCS_PLANS / "2026-06-16-disappearance-idle-reset.md"
 MAKE_AUTHORITY_PLAN = DOCS_PLANS / "2026-06-21-make-authority-isolation.md"
 GAME_TEXT_ACCESSIBILITY_PLAN = DOCS_PLANS / "2026-06-25-game-text-dynamic-type.md"
+GAME_TEXT_VOICEOVER_PLAN = DOCS_PLANS / "2026-06-26-game-text-voiceover.md"
 MOTION_UNAVAILABLE_STATE_PLAN = DOCS_PLANS / "2026-06-26-motion-unavailable-state.md"
 RETIRED_SDKS = ("Crashlytics.framework", "Fabric.framework", "MoPub.framework")
 
@@ -580,6 +581,52 @@ def check_game_text_accessibility_contracts():
         require(phrase in read_text(relative_path), f"{relative_path} must document {phrase}")
 
 
+def check_game_text_voiceover_contracts():
+    source = read_text("UpDown/ViewController.swift")
+    tests = read_text("UpDownTests/UpDownTests.swift")
+
+    contracts = (
+        "var isIdle: Bool",
+        "struct GameTextAccessibility",
+        "static let hint =",
+        "static func announcement(for state: GameDisplayState) -> String?",
+        "label.isAccessibilityElement = true",
+        "label.accessibilityHint = hint",
+        "GameTextAccessibility.apply(to: label)",
+        "UIAccessibility.post(notification: .announcement, argument: announcement)",
+        "if displayState.isIdle",
+        "else if !displayState.isIdle",
+    )
+    for contract in contracts:
+        require(contract in source, f"VoiceOver prompt transitions must include {contract}")
+
+    for test_name in (
+        "testUnavailableStateRequiresAResetBeforeAnotherPrompt",
+        "testGameTextProvidesVoiceOverGuidance",
+        "testPromptAndUnavailableStatesProduceAnnouncements",
+    ):
+        require(test_name in tests, f"XCTest coverage is missing {test_name}")
+
+    require(
+        "check_game_text_voiceover_contracts" in registered_main_checks(),
+        "VoiceOver prompt transition contracts must remain registered",
+    )
+    require(
+        "GameDisplayState.motionUnavailableText" in tests,
+        "XCTest must prove unavailable device motion is announced",
+    )
+
+    documentation = {
+        "README.md": "VoiceOver announces each new prompt or unavailable state once",
+        "SECURITY.md": "VoiceOver announcements follow explicit prompt-state transitions",
+        "VISION.md": "Announce prompt-state transitions to VoiceOver",
+        "CHANGES.md": "Announced prompt and unavailable transitions to VoiceOver",
+        "AGENTS.md": "VoiceOver announcements must follow explicit non-idle prompt transitions",
+    }
+    for relative_path, phrase in documentation.items():
+        require(phrase in read_text(relative_path), f"{relative_path} must document VoiceOver prompt transitions")
+
+
 def check_hosted_verification():
     workflow = read_text(".github/workflows/check.yml")
     checkout_action = "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10"
@@ -721,6 +768,10 @@ def check_docs_plans():
         f"{GAME_TEXT_ACCESSIBILITY_PLAN.relative_to(ROOT)} must be present",
     )
     require(
+        GAME_TEXT_VOICEOVER_PLAN in plans,
+        f"{GAME_TEXT_VOICEOVER_PLAN.relative_to(ROOT)} must be present",
+    )
+    require(
         MOTION_UNAVAILABLE_STATE_PLAN in plans,
         f"{MOTION_UNAVAILABLE_STATE_PLAN.relative_to(ROOT)} must be present",
     )
@@ -747,6 +798,7 @@ def main():
         check_stale_motion_callback_contracts,
         check_disappearance_idle_reset_contracts,
         check_game_text_accessibility_contracts,
+        check_game_text_voiceover_contracts,
         check_hosted_verification,
         check_codeql_verification,
         check_docs_plans,
