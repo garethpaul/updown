@@ -73,6 +73,10 @@ struct GameDisplayState {
     private(set) var text = GameDisplayState.idleText
     private(set) var playing = false
 
+    var isIdle: Bool {
+        text == Self.idleText && !playing
+    }
+
     mutating func show(prompt: String) {
         text = prompt
         playing = true
@@ -89,6 +93,19 @@ struct GameDisplayState {
     }
 }
 
+struct GameTextAccessibility {
+    static let hint = "Tilt the phone up to hear a new word, then lower it to reset."
+
+    static func apply(to label: UILabel) {
+        label.isAccessibilityElement = true
+        label.accessibilityHint = hint
+    }
+
+    static func announcement(for state: GameDisplayState) -> String? {
+        state.isIdle ? nil : state.text
+    }
+}
+
 struct GameTextStyle {
     static let basePointSize: CGFloat = 72
     static let maximumPointSize: CGFloat = 120
@@ -102,6 +119,7 @@ struct GameTextStyle {
         label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
+        GameTextAccessibility.apply(to: label)
     }
 }
 
@@ -204,10 +222,10 @@ final class ViewController: UIViewController {
             )
 
             if shouldPlay {
-                if !displayState.playing {
+                if displayState.isIdle {
                     play()
                 }
-            } else if displayState.playing {
+            } else if !displayState.isIdle {
                 stop()
             }
         }
@@ -231,5 +249,8 @@ final class ViewController: UIViewController {
 
     private func renderDisplayState() {
         gameText.text = displayState.text
+        if let announcement = GameTextAccessibility.announcement(for: displayState) {
+            UIAccessibility.post(notification: .announcement, argument: announcement)
+        }
     }
 }

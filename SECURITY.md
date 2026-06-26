@@ -50,6 +50,9 @@ Helpful reports include:
   synchronized.
 - The local clue label uses capped Dynamic Type scaling and word wrapping so
   accessibility text sizes do not silently tail-truncate prompts.
+- VoiceOver announcements follow explicit prompt-state transitions; unavailable
+  prompt inventory remains non-idle until a physical reset instead of producing
+  repeated announcement or selection work.
 
 ## Mobile Privacy Notes
 

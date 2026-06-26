@@ -29,6 +29,8 @@
 
 - The application and tests use Swift 5 and support iOS 13 or later.
 - Keep the shared `UpDown` scheme, explicit bundle identifiers, and simulator-safe no-signing build intact.
+- VoiceOver announcements must follow explicit non-idle prompt transitions;
+  sustained tilt must not repeatedly announce unavailable prompt inventory.
 
 ## Testing guidance
 

@@ -257,6 +257,19 @@ final class GameDisplayStateTests: XCTestCase {
         XCTAssertFalse(state.playing)
         XCTAssertEqual(state.text, GameDisplayState.idleText)
     }
+
+    func testUnavailableStateRequiresAResetBeforeAnotherPrompt() {
+        var state = GameDisplayState()
+
+        state.showUnavailable()
+
+        XCTAssertFalse(state.isIdle)
+        XCTAssertFalse(state.playing)
+
+        state.stop()
+
+        XCTAssertTrue(state.isIdle)
+    }
 }
 
 final class GameTextStyleTests: XCTestCase {
@@ -269,5 +282,29 @@ final class GameTextStyleTests: XCTestCase {
         XCTAssertEqual(label.numberOfLines, 0)
         XCTAssertEqual(label.lineBreakMode, .byWordWrapping)
         XCTAssertLessThanOrEqual(label.font.pointSize, GameTextStyle.maximumPointSize)
+    }
+
+    func testGameTextProvidesVoiceOverGuidance() {
+        let label = UILabel()
+
+        GameTextStyle.apply(to: label)
+
+        XCTAssertTrue(label.isAccessibilityElement)
+        XCTAssertEqual(label.accessibilityHint, GameTextAccessibility.hint)
+    }
+
+    func testPromptAndUnavailableStatesProduceAnnouncements() {
+        var state = GameDisplayState()
+
+        XCTAssertNil(GameTextAccessibility.announcement(for: state))
+
+        state.show(prompt: "Airplane")
+        XCTAssertEqual(GameTextAccessibility.announcement(for: state), "Airplane")
+
+        state.showUnavailable()
+        XCTAssertEqual(
+            GameTextAccessibility.announcement(for: state),
+            GameDisplayState.unavailableText
+        )
     }
 }

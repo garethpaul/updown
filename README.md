@@ -85,6 +85,9 @@ Static contracts additionally require motion callbacks to avoid retaining the
 view controller, prevent duplicate subscriptions, tolerate small threshold
 fluctuations while playing, reset an active prompt after a motion error or
 missing attitude, and stop when the view leaves the screen.
+VoiceOver announces each new prompt or unavailable state once. The unavailable
+state remains non-idle until the phone leaves the active tilt range, preventing
+continuous retries and duplicate announcements.
 Queued callbacks from an ended motion session are ignored before they can
 update game state.
 Leaving the game view clears any visible prompt and returns the display to idle
