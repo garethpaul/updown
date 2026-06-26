@@ -27,6 +27,7 @@ STALE_MOTION_CALLBACK_PLAN = DOCS_PLANS / "2026-06-16-stale-motion-callback-guar
 DISAPPEARANCE_IDLE_RESET_PLAN = DOCS_PLANS / "2026-06-16-disappearance-idle-reset.md"
 MAKE_AUTHORITY_PLAN = DOCS_PLANS / "2026-06-21-make-authority-isolation.md"
 GAME_TEXT_ACCESSIBILITY_PLAN = DOCS_PLANS / "2026-06-25-game-text-dynamic-type.md"
+MOTION_UNAVAILABLE_STATE_PLAN = DOCS_PLANS / "2026-06-26-motion-unavailable-state.md"
 RETIRED_SDKS = ("Crashlytics.framework", "Fabric.framework", "MoPub.framework")
 
 
@@ -240,6 +241,33 @@ def check_motion_lifecycle_contracts():
     )
     require("motionManager.isDeviceMotionAvailable" in source, "motion availability must be checked")
     require("!motionManager.isDeviceMotionActive" in source, "duplicate motion subscriptions must be prevented")
+    begin_motion = source[
+        source.index("private func beginMotionUpdates()") :
+        source.index("let motionGeneration = motionUpdateSession.begin()")
+    ]
+    unavailable_motion_contracts = (
+        "guard motionManager.isDeviceMotionAvailable else",
+        "displayState.showMotionUnavailable()",
+        "renderDisplayState()",
+        "return",
+        "guard !motionManager.isDeviceMotionActive else",
+    )
+    for contract in unavailable_motion_contracts:
+        require(contract in begin_motion, f"unavailable motion handling must include {contract}")
+    unavailable_motion_positions = [
+        begin_motion.index(contract) for contract in unavailable_motion_contracts
+    ]
+    require(
+        unavailable_motion_positions == sorted(unavailable_motion_positions),
+        "unavailable device motion must render an explicit state before the active-session guard",
+    )
+    documentation = {
+        "README.md": "shows `Motion unavailable` as an explicit non-playing state",
+        "VISION.md": "Show an explicit non-playing state when device motion is unavailable",
+        "CHANGES.md": "truthful unavailable-motion state",
+    }
+    for relative_path, phrase in documentation.items():
+        require(phrase in read_text(relative_path), f"{relative_path} must document unavailable motion: {phrase}")
     require("motionManager.stopDeviceMotionUpdates()" in source, "motion updates must stop off screen")
     require("override func viewWillDisappear(_ animated: Bool)" in source, "modern lifecycle override must be used")
     for contract in (
@@ -421,10 +449,12 @@ def check_disappearance_idle_reset_contracts():
         "struct GameDisplayState",
         'static let idleText = "Tilt the phone up for a word"',
         'static let unavailableText = "No prompts available"',
+        'static let motionUnavailableText = "Motion unavailable"',
         "private(set) var text = GameDisplayState.idleText",
         "private(set) var playing = false",
         "mutating func show(prompt: String)",
         "mutating func showUnavailable()",
+        "mutating func showMotionUnavailable()",
         "mutating func stop()",
         "private var displayState = GameDisplayState()",
         "gameText.text = displayState.text",
@@ -438,6 +468,7 @@ def check_disappearance_idle_reset_contracts():
     state_transitions = (
         "text = prompt\n        playing = true",
         "text = Self.unavailableText\n        playing = false",
+        "text = Self.motionUnavailableText\n        playing = false",
         "text = Self.idleText\n        playing = false",
     )
     for transition in state_transitions:
@@ -482,6 +513,7 @@ def check_disappearance_idle_reset_contracts():
     )
 
     for test_name in (
+        "testUnavailableMotionShowsExplicitNonPlayingState",
         "testStoppingActiveGameReturnsVisibleAndLogicalStateToIdle",
         "testStoppingIdleGameKeepsVisibleAndLogicalStateIdle",
     ):
@@ -490,6 +522,10 @@ def check_disappearance_idle_reset_contracts():
         tests.count("XCTAssertFalse(state.playing)") >= 2
         and tests.count("XCTAssertEqual(state.text, GameDisplayState.idleText)") >= 2,
         "XCTest must prove active and idle stops synchronize visible and logical state",
+    )
+    require(
+        "XCTAssertEqual(state.text, GameDisplayState.motionUnavailableText)" in tests,
+        "XCTest must prove unavailable motion replaces the impossible idle instruction",
     )
     require(
         "check_disappearance_idle_reset_contracts" in registered_main_checks(),
@@ -683,6 +719,10 @@ def check_docs_plans():
     require(
         GAME_TEXT_ACCESSIBILITY_PLAN in plans,
         f"{GAME_TEXT_ACCESSIBILITY_PLAN.relative_to(ROOT)} must be present",
+    )
+    require(
+        MOTION_UNAVAILABLE_STATE_PLAN in plans,
+        f"{MOTION_UNAVAILABLE_STATE_PLAN.relative_to(ROOT)} must be present",
     )
     require(
         "check_stale_motion_callback_contracts" in registered_main_checks(),

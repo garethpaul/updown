@@ -21,6 +21,7 @@ Priority:
 - Keep advertising, analytics, and crash-reporting SDKs out of the app
 - Keep the Swift 5 / iOS 13+ project reproducible with a shared test scheme
 - Reset active play safely when CoreMotion reports an error or missing sample
+- Show an explicit non-playing state when device motion is unavailable
 - Tolerate small sensor fluctuations at motion play-state boundaries
 - Stop CoreMotion updates when the game view is off screen
 - Ignore queued callbacks from ended CoreMotion sessions

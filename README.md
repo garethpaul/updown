@@ -85,6 +85,9 @@ Static contracts additionally require motion callbacks to avoid retaining the
 view controller, prevent duplicate subscriptions, tolerate small threshold
 fluctuations while playing, reset an active prompt after a motion error or
 missing attitude, and stop when the view leaves the screen.
+If device motion is unavailable when a visible game session starts, the label
+shows `Motion unavailable` as an explicit non-playing state instead of leaving
+the impossible idle instruction on screen.
 Queued callbacks from an ended motion session are ignored before they can
 update game state.
 Leaving the game view clears any visible prompt and returns the display to idle
@@ -137,6 +140,8 @@ version, app commit, orientation, and result for each step.
 8. With the game view still visible, background and foreground the app. Confirm
    the prompt resets to idle in the background, no queued callback restores it,
    and exactly one fresh subscription resumes after activation.
+9. On hardware or an environment where device motion is unavailable, confirm
+   `Motion unavailable` replaces the tilt instruction and no prompt starts.
 
 This checklist is pending physical-device execution. Simulator and static
 results do not satisfy it.
@@ -165,6 +170,8 @@ results do not satisfy it.
   pending physical-device threshold and lifecycle checklist.
 - `docs/plans/2026-06-16-stale-motion-callback-guard.md` records generation
   invalidation for queued callbacks from ended motion sessions.
+- `docs/plans/2026-06-26-motion-unavailable-state.md` records the explicit
+  non-playing state used when CoreMotion cannot provide device motion.
 
 ## Contributing
 

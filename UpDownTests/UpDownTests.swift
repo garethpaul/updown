@@ -239,6 +239,16 @@ final class MotionLifecycleStateTests: XCTestCase {
 }
 
 final class GameDisplayStateTests: XCTestCase {
+    func testUnavailableMotionShowsExplicitNonPlayingState() {
+        var state = GameDisplayState()
+        state.show(prompt: "Airplane")
+
+        state.showMotionUnavailable()
+
+        XCTAssertFalse(state.playing)
+        XCTAssertEqual(state.text, GameDisplayState.motionUnavailableText)
+    }
+
     func testStoppingActiveGameReturnsVisibleAndLogicalStateToIdle() {
         var state = GameDisplayState()
         state.show(prompt: "Airplane")
