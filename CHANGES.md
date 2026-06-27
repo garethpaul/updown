@@ -1,5 +1,31 @@
 # Changes
 
+## 2026-06-26 18:32 PDT
+
+- **Priority:** P2 accurate VoiceOver action guidance.
+- **Summary:** Replaced the label's permanent tilt-up hint with state-specific
+  VoiceOver hints for idle, active prompt, prompt-unavailable, and
+  motion-unavailable states.
+- **Work:** Added a pure hint mapping, updated it with every rendered display
+  state, preserved one-shot announcements, and removed the impossible action
+  hint when CoreMotion is unavailable.
+- **Tests:** Added XCTest coverage for all four display states and tightened the
+  portable checker to reject a static tilt hint or incorrect state ordering.
+- **Validation:** The checker first failed because the state-specific API did
+  not exist. All 11 static checks and 35 Make authority cases pass through root
+  and external-directory `make check`; Python compilation and
+  `git diff --check` pass. Local XCTest/build skip because `xcodebuild` is
+  unavailable. Hosted run 28274571178 passes XCTest/build and Python
+  3.10/3.12/3.14 static contracts; CodeQL run 28274571175 passes Swift,
+  Python, and Actions analysis on implementation head `bd4a90b`.
+- **Review:** Required `codex review --base origin/master` failed before
+  analysis with OpenAI HTTP 401. Immutable exact-head review confirmed state
+  ordering, prompt-text collision behavior, nil motion-unavailable guidance,
+  render-time assignment, test coverage, and a clean diff with no actionable
+  finding.
+- **Blockers:** Spoken VoiceOver phrasing and physical tilt behavior still
+  require device verification.
+
 ## 2026-06-26 04:07 PDT
 
 - **Priority:** P2 accessible one-screen prompt transitions.

@@ -35,6 +35,8 @@ Priority:
   and word-wrapped clues
 - Announce prompt-state transitions to VoiceOver without repeated unavailable
   retries
+- Keep state-specific VoiceOver hints aligned with the action available in
+  each display state
 
 Next priorities:
 
