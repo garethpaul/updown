@@ -300,7 +300,34 @@ final class GameTextStyleTests: XCTestCase {
         GameTextStyle.apply(to: label)
 
         XCTAssertTrue(label.isAccessibilityElement)
-        XCTAssertEqual(label.accessibilityHint, GameTextAccessibility.hint)
+        XCTAssertEqual(
+            GameTextAccessibility.hint(for: GameDisplayState()),
+            GameTextAccessibility.idleHint
+        )
+    }
+
+    func testVoiceOverHintMatchesCurrentGameState() {
+        var state = GameDisplayState()
+
+        XCTAssertEqual(
+            GameTextAccessibility.hint(for: state),
+            GameTextAccessibility.idleHint
+        )
+
+        state.show(prompt: "Airplane")
+        XCTAssertEqual(
+            GameTextAccessibility.hint(for: state),
+            GameTextAccessibility.playingHint
+        )
+
+        state.showUnavailable()
+        XCTAssertEqual(
+            GameTextAccessibility.hint(for: state),
+            GameTextAccessibility.unavailableHint
+        )
+
+        state.showMotionUnavailable()
+        XCTAssertNil(GameTextAccessibility.hint(for: state))
     }
 
     func testPromptAndUnavailableStatesProduceAnnouncements() {

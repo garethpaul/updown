@@ -31,6 +31,8 @@
 - Keep the shared `UpDown` scheme, explicit bundle identifiers, and simulator-safe no-signing build intact.
 - VoiceOver announcements must follow explicit non-idle prompt transitions;
   sustained tilt must not repeatedly announce unavailable prompt inventory.
+- State-specific VoiceOver hints must never instruct a tilt action when motion
+  is unavailable or a prompt is already active.
 
 ## Testing guidance
 

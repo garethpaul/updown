@@ -29,6 +29,7 @@ MAKE_AUTHORITY_PLAN = DOCS_PLANS / "2026-06-21-make-authority-isolation.md"
 GAME_TEXT_ACCESSIBILITY_PLAN = DOCS_PLANS / "2026-06-25-game-text-dynamic-type.md"
 GAME_TEXT_VOICEOVER_PLAN = DOCS_PLANS / "2026-06-26-game-text-voiceover.md"
 MOTION_UNAVAILABLE_STATE_PLAN = DOCS_PLANS / "2026-06-26-motion-unavailable-state.md"
+STATE_SPECIFIC_VOICEOVER_HINTS_PLAN = DOCS_PLANS / "2026-06-26-state-specific-voiceover-hints.md"
 RETIRED_SDKS = ("Crashlytics.framework", "Fabric.framework", "MoPub.framework")
 
 
@@ -588,11 +589,14 @@ def check_game_text_voiceover_contracts():
     contracts = (
         "var isIdle: Bool",
         "struct GameTextAccessibility",
-        "static let hint =",
+        "static let idleHint =",
+        "static let playingHint =",
+        "static let unavailableHint =",
+        "static func hint(for state: GameDisplayState) -> String?",
         "static func announcement(for state: GameDisplayState) -> String?",
         "label.isAccessibilityElement = true",
-        "label.accessibilityHint = hint",
         "GameTextAccessibility.apply(to: label)",
+        "gameText.accessibilityHint = GameTextAccessibility.hint(for: displayState)",
         "UIAccessibility.post(notification: .announcement, argument: announcement)",
         "if displayState.isIdle",
         "else if !displayState.isIdle",
@@ -603,9 +607,32 @@ def check_game_text_voiceover_contracts():
     for test_name in (
         "testUnavailableStateRequiresAResetBeforeAnotherPrompt",
         "testGameTextProvidesVoiceOverGuidance",
+        "testVoiceOverHintMatchesCurrentGameState",
         "testPromptAndUnavailableStatesProduceAnnouncements",
     ):
         require(test_name in tests, f"XCTest coverage is missing {test_name}")
+
+    require(
+        "label.accessibilityHint = hint" not in source,
+        "VoiceOver guidance must not remain a static tilt-up hint",
+    )
+    hint_method = source[
+        source.index("static func hint(for state: GameDisplayState) -> String?") :
+        source.index("static func announcement(for state: GameDisplayState) -> String?")
+    ]
+    idle_position = hint_method.index("if state.isIdle")
+    playing_position = hint_method.index("if state.playing")
+    unavailable_position = hint_method.index(
+        "if state.text == GameDisplayState.unavailableText"
+    )
+    require(
+        idle_position < playing_position < unavailable_position and
+        "return idleHint" in hint_method and
+        "return playingHint" in hint_method and
+        "return unavailableHint" in hint_method and
+        hint_method.rstrip().endswith("return nil\n    }"),
+        "VoiceOver hints must follow idle, playing, prompt-unavailable, and motion-unavailable state",
+    )
 
     require(
         "check_game_text_voiceover_contracts" in registered_main_checks(),
@@ -625,6 +652,13 @@ def check_game_text_voiceover_contracts():
     }
     for relative_path, phrase in documentation.items():
         require(phrase in read_text(relative_path), f"{relative_path} must document VoiceOver prompt transitions")
+
+    for relative_path in ("README.md", "SECURITY.md", "VISION.md", "CHANGES.md", "AGENTS.md"):
+        normalized_document = " ".join(read_text(relative_path).split()).lower()
+        require(
+            "state-specific voiceover hints" in normalized_document,
+            f"{relative_path} must document state-specific VoiceOver hints",
+        )
 
 
 def check_hosted_verification():
@@ -774,6 +808,10 @@ def check_docs_plans():
     require(
         MOTION_UNAVAILABLE_STATE_PLAN in plans,
         f"{MOTION_UNAVAILABLE_STATE_PLAN.relative_to(ROOT)} must be present",
+    )
+    require(
+        STATE_SPECIFIC_VOICEOVER_HINTS_PLAN in plans,
+        f"{STATE_SPECIFIC_VOICEOVER_HINTS_PLAN.relative_to(ROOT)} must be present",
     )
     require(
         "check_stale_motion_callback_contracts" in registered_main_checks(),

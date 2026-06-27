@@ -53,6 +53,9 @@ Helpful reports include:
 - VoiceOver announcements follow explicit prompt-state transitions; unavailable
   prompt inventory remains non-idle until a physical reset instead of producing
   repeated announcement or selection work.
+- State-specific VoiceOver hints must match idle, active prompt,
+  prompt-unavailable, and motion-unavailable states instead of retaining an
+  impossible tilt instruction.
 
 ## Mobile Privacy Notes
 

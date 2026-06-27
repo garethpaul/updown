@@ -100,11 +100,25 @@ struct GameDisplayState {
 }
 
 struct GameTextAccessibility {
-    static let hint = "Tilt the phone up to hear a new word, then lower it to reset."
+    static let idleHint = "Tilt the phone up to hear a new word."
+    static let playingHint = "Lower the phone to reset."
+    static let unavailableHint = "Lower the phone to reset before trying again."
 
     static func apply(to label: UILabel) {
         label.isAccessibilityElement = true
-        label.accessibilityHint = hint
+    }
+
+    static func hint(for state: GameDisplayState) -> String? {
+        if state.isIdle {
+            return idleHint
+        }
+        if state.playing {
+            return playingHint
+        }
+        if state.text == GameDisplayState.unavailableText {
+            return unavailableHint
+        }
+        return nil
     }
 
     static func announcement(for state: GameDisplayState) -> String? {
@@ -259,6 +273,7 @@ final class ViewController: UIViewController {
 
     private func renderDisplayState() {
         gameText.text = displayState.text
+        gameText.accessibilityHint = GameTextAccessibility.hint(for: displayState)
         if let announcement = GameTextAccessibility.announcement(for: displayState) {
             UIAccessibility.post(notification: .announcement, argument: announcement)
         }

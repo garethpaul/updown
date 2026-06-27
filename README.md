@@ -88,6 +88,8 @@ missing attitude, and stop when the view leaves the screen.
 VoiceOver announces each new prompt or unavailable state once. The unavailable
 state remains non-idle until the phone leaves the active tilt range, preventing
 continuous retries and duplicate announcements.
+State-specific VoiceOver hints now say when to tilt up, when to lower for a
+reset or retry, and expose no impossible tilt action when motion is unavailable.
 If device motion is unavailable when a visible game session starts, the label
 shows `Motion unavailable` as an explicit non-playing state instead of leaving
 the impossible idle instruction on screen.
